@@ -1,0 +1,13 @@
+{
+  "name": "hubble-v2",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "services":"cd services && npm run dev",
+    "web":"cd web && npm run dev"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
