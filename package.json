@@ -4,8 +4,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "services":"cd services && npm run dev",
-    "web":"cd web && npm run dev"
+    "services": "cd services && npm run dev",
+    "web": "cd web && npm run dev"
   },
   "author": "",
   "license": "ISC",

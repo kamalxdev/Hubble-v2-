@@ -16,8 +16,8 @@ function UserTemplate({
   avatar,
 }: iUserTemplate) {
   return (
-    <div className="relative w-full flex gap-4 px-4 py-2 hover:bg-slate-800 rounded-md">
-      <div>
+    <div className="relative w-full flex gap-4 px-4 py-2 hover:bg-slate-900/80" key={username}>
+      <div className="flex items-center justify-center">
         <Avatar name={name} loading="lazy" />
       </div>
       <div className="w-full">

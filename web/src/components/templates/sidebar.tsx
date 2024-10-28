@@ -2,8 +2,6 @@
 
 import { memo } from "react";
 import { Avatar } from "../ui/avatar";
-import { Button } from "../ui/button";
-import { ChatTeardropText, GearSix, Phone } from "@phosphor-icons/react";
 import { IconButton } from "@chakra-ui/react";
 import { LuSearch } from "react-icons/lu";
 import { PiChatText } from "react-icons/pi";
@@ -35,7 +33,7 @@ function SidebarTemplate() {
     },
   ];
   return (
-    <section className="flex flex-col bg-slate-950  h-screen items-center justify-between text-white px-2">
+    <section className="flex flex-col bg-slate-950  h-dvh items-center justify-between text-white px-2">
       <div className="flex flex-col mt-6 gap-5 ">
         <div>
           <Avatar
