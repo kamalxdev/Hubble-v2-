@@ -5,9 +5,11 @@ import { CiSearch } from "react-icons/ci";
 
 function SearchbarTemplate() {
   return (
+    <HStack gap="10" width="full">
       <InputGroup flex="1" startElement={<CiSearch />}>
-        <Input placeholder="Search user" />
+        <Input placeholder="Search users" />
       </InputGroup>
+    </HStack>
   );
 }
 

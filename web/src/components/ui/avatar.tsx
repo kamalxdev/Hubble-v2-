@@ -24,7 +24,7 @@ export const Avatar = forwardRef<HTMLDivElement, AvatarProps>(
         <AvatarFallback name={name} icon={icon}>
           {fallback}
         </AvatarFallback>
-        <ChakraAvatar.Image src={src} srcSet={srcSet} loading={loading} />
+        <ChakraAvatar.Image src={src} srcSet={srcSet} loading={loading} className="w-full h-full"/>
         {children}
       </ChakraAvatar.Root>
     )

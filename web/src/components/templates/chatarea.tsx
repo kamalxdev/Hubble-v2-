@@ -3,11 +3,10 @@
 import { memo } from "react";
 import { Avatar } from "../ui/avatar";
 import { chakra, IconButton } from "@chakra-ui/react";
-import { MdOutlineCall } from "react-icons/md";
-import { FiVideo } from "react-icons/fi";
-import { SlOptionsVertical } from "react-icons/sl";
 import AutoResize from "react-textarea-autosize";
 import { BsCheck, BsCheckAll, BsCheckLg, BsSend } from "react-icons/bs";
+import { IoCallOutline, IoVideocamOutline } from "react-icons/io5";
+import { HiOutlineDotsVertical } from "react-icons/hi";
 
 function ChatAreaTemplate() {
   const StyledAutoResize = chakra(AutoResize);
@@ -167,21 +166,21 @@ function ChatAreaTemplate() {
   const userOptions = [
     {
       name: "Voice Call",
-      icon: <MdOutlineCall />,
+      icon: <IoCallOutline />,
       onclick: () => {
         alert("label");
       },
     },
     {
       name: "Video Call",
-      icon: <FiVideo />,
+      icon: <IoVideocamOutline />,
       onclick: () => {
         alert("label");
       },
     },
     {
       name: "Options",
-      icon: <SlOptionsVertical />,
+      icon: <HiOutlineDotsVertical />,
       onclick: () => {
         alert("label");
       },

@@ -1,11 +1,7 @@
 import ChatAreaTemplate from "@/components/templates/chatarea";
-import SearchbarTemplate from "@/components/templates/searchbar";
 import SidebarTemplate from "@/components/templates/sidebar";
 import UserTemplate from "@/components/templates/user";
-import { Avatar } from "@/components/ui/avatar";
-import { IconButton } from "@chakra-ui/react";
 import Image from "next/image";
-import { MdOutlineCall } from "react-icons/md";
 
 export default function Home() {
   const friends = [
