@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(uuid())
+  name          String
+  username      String    @unique
+  avatar        String?
+  email         String    @unique
+  password      String
+  createdAt     DateTime? @default(now())
+  updatedAt     DateTime? @updatedAt
+  chatsSent     Chat[]    @relation("SenderChats")
+  chatsReceived Chat[]    @relation("ReceiverChats")
+  callsMade     Call[]    @relation("CallsMade")
+  callsReceived Call[]    @relation("CallsReceived")
+}
+
+model Chat {
+  id         String    @id @default(uuid())
+  messages   Json?
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
+  senderId   String
+  receiverId String
+  sender     User      @relation("SenderChats", fields: [senderId], references: [id])
+  receiver   User      @relation("ReceiverChats", fields: [receiverId], references: [id])
+}
+
+model Call {
+  id         String    @id @default(uuid())
+  callerId   String
+  receiverId String
+  type       callType
+  answer     Boolean   @default(false)
+  caller     User      @relation("CallsMade", fields: [callerId], references: [id])
+  receiver   User      @relation("CallsReceived", fields: [receiverId], references: [id])
+  createdAt  DateTime? @default(now())
+}
+
+enum callType {
+  video
+  voice
+}

@@ -24,20 +24,20 @@ function ProfileTemplate() {
       setUploadedAvatar(URL.createObjectURL(event.files[0]));
   }
 
-  const editProfileDetails=[
+  const editProfileDetails = [
     {
-      title:"Name",
-      defaultValue:"Kamal Singh"
+      title: "Name",
+      defaultValue: "Kamal Singh",
     },
     {
-      title:"Username",
-      defaultValue:"ksb"
+      title: "Username",
+      defaultValue: "ksb",
     },
     {
-      title:"Email",
-      defaultValue:"itskamal.dev@gmail.com"
-    }
-  ]
+      title: "Email",
+      defaultValue: "itskamal.dev@gmail.com",
+    },
+  ];
   return (
     <div className="flex flex-col justify-center gap-8">
       <div className="flex justify-center items-center gap-3">
@@ -60,23 +60,26 @@ function ProfileTemplate() {
         </FileUploadRoot>
       </div>
       <div className="flex flex-col gap-3">
-        {
-        editProfileDetails?.map(({title,defaultValue})=><ProfileDetails title={title} defaultValue={defaultValue}/>)
-        }
+        {editProfileDetails?.map(({ title, defaultValue }) => (
+          <ProfileDetails title={title} defaultValue={defaultValue} key={title} />
+        ))}
       </div>
     </div>
   );
 }
 
-type iProfileDetails={
-  title:string;
-  defaultValue:string
-}
+type iProfileDetails = {
+  title: string;
+  defaultValue: string;
+};
 
-const ProfileDetails = memo(function ProfileDetails({title,defaultValue}:iProfileDetails) {
-  const [ toggleEdit, setToggleEdit] = useState<boolean>(false);
+const ProfileDetails = memo(function ProfileDetails({
+  title,
+  defaultValue,
+}: iProfileDetails) {
+  const [toggleEdit, setToggleEdit] = useState<boolean>(false);
   return (
-    <div className="flex flex-col gap-2 w-full">
+    <div className="flex flex-col gap-2 w-full" key={title}>
       <p>{title}:</p>
       <span className="flex gap-2  rounded-sm w-full">
         <input
@@ -86,7 +89,9 @@ const ProfileDetails = memo(function ProfileDetails({title,defaultValue}:iProfil
           disabled={!toggleEdit}
           defaultValue={defaultValue}
           className={`outline-0 transition w-full h-full p-2 truncate  ${
-            toggleEdit ?"border-b-4 border-green-700" : "border-2 border-white/25"
+            toggleEdit
+              ? "border-b-4 border-green-700"
+              : "border-2 border-white/25"
           }`}
         />
         {/* <Input disabled={false} defaultValue={"Kamal Singh"} className={`outline-0 border-0 transition p-0 ${toggleEdit && "border-b-4 border-green-700"}`}/> */}
@@ -95,7 +100,7 @@ const ProfileDetails = memo(function ProfileDetails({title,defaultValue}:iProfil
           className=" bg-white/20 p-2"
           onClick={() => setToggleEdit(!toggleEdit)}
         >
-          {toggleEdit ? <MdOutlineDone /> :  <FiEdit2 /> }
+          {toggleEdit ? <MdOutlineDone /> : <FiEdit2 />}
         </button>
       </span>
     </div>
