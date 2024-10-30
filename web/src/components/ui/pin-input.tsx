@@ -17,7 +17,7 @@ export const PinInput = forwardRef<HTMLInputElement, PinInputProps>(
         <ChakraPinInput.Control>
           <Group attached={attached}>
             {Array.from({ length: count }).map((_, index) => (
-              <ChakraPinInput.Input key={index} index={index} />
+              <ChakraPinInput.Input key={index} index={index} className="border border-white/25"/>
             ))}
           </Group>
         </ChakraPinInput.Control>
