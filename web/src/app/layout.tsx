@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Provider } from "@/components/ui/provider"
 import "./globals.css";
+import { startRedis } from "@/utils/redis";
+import { Toaster } from "@/components/ui/toaster";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -19,17 +21,21 @@ export const metadata: Metadata = {
   description: "A messaging website",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  await startRedis();
   return (
     <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-         <Provider>{children}</Provider>
+         <Provider><Toaster />
+
+          {children}
+          </Provider>
       </body>
     </html>
   );
