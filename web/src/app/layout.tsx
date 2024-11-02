@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import { Provider } from "@/components/ui/provider"
+import { Provider } from "@/components/ui/provider";
 import "./globals.css";
 import { startRedis } from "@/utils/redis";
 import { Toaster } from "@/components/ui/toaster";
+import StoreProvider from "./StoreProvider";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -32,10 +33,12 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-         <Provider><Toaster />
-
-          {children}
+        <StoreProvider>
+          <Provider>
+            <Toaster />
+            {children}
           </Provider>
+        </StoreProvider>
       </body>
     </html>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { memo } from "react";
+import { memo, useEffect } from "react";
 import { Avatar } from "../ui/avatar";
 import { IconButton } from "@chakra-ui/react";
 import { LuSearch } from "react-icons/lu";
@@ -9,8 +9,18 @@ import { IoCallOutline, IoSettingsOutline } from "react-icons/io5";
 import Drawer from "./drawer";
 import SearchbarTemplate from "./searchbar";
 import ProfileTemplate from "./profile";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import authenticate from "@/server-actions/auth/authenticate";
+import { iUser, setUser } from "@/redux/features/user";
+import SettingTemplate from "./setting";
 
 function SidebarTemplate() {
+  const dispatch=useAppDispatch();
+  useEffect(()=>{
+    authenticate().then((data:{success:boolean,user?:iUser})=>{
+      dispatch(setUser(data?.user as iUser));
+    })
+  },[])
   const menu = [
     {
       label: "Messages",
@@ -32,7 +42,7 @@ function SidebarTemplate() {
       <div className="flex flex-col mt-6 gap-5 ">
         <Drawer
           title="Profile"
-          icon={<Avatar name="Kamal Singh" loading="lazy" />}
+          icon={<Avatar name={useAppSelector((state)=>state.user?.name)} loading="lazy" />}
         >
           <ProfileTemplate />
         </Drawer>
@@ -54,8 +64,7 @@ function SidebarTemplate() {
       </div>
       <div className="mb-14">
         <Drawer title="Setting" icon={<IoSettingsOutline />}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua.
+          <SettingTemplate/>
         </Drawer>
       </div>
     </section>

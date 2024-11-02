@@ -13,9 +13,7 @@ export async function middleware(request: NextRequest) {
         }
     } else if(url.startsWith('/')){
         if(!authCookie) return NextResponse.redirect(new URL('/login',request.url))
-        
         const authenticateUserTOKEN= await authenticate();
-        
         if(!authenticateUserTOKEN?.success) return NextResponse.redirect(new URL('/login',request.url))
     }
     

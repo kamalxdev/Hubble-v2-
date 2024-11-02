@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { Avatar } from "../ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,8 +12,10 @@ import { HiUpload } from "react-icons/hi";
 import { FileUploadFileAcceptDetails, Input } from "@chakra-ui/react";
 import { FiEdit2 } from "react-icons/fi";
 import { MdOutlineDone } from "react-icons/md";
+import { useAppSelector } from "@/redux/hooks";
 
 function ProfileTemplate() {
+  
   const [uploadedAvatar, setUploadedAvatar] = useState<string>();
 
   function handleOnFileAccept(event: FileUploadFileAcceptDetails) {
@@ -27,24 +29,24 @@ function ProfileTemplate() {
   const editProfileDetails = [
     {
       title: "Name",
-      defaultValue: "Kamal Singh",
+      defaultValue: useAppSelector((state)=>state.user?.name),
     },
     {
       title: "Username",
-      defaultValue: "ksb",
+      defaultValue: useAppSelector((state)=>state.user?.username),
     },
     {
       title: "Email",
-      defaultValue: "itskamal.dev@gmail.com",
+      defaultValue: useAppSelector((state)=>state.user?.email),
     },
   ];
   return (
     <div className="flex flex-col justify-center gap-8">
       <div className="flex justify-center items-center gap-3">
         <Avatar
-          name="Kamal Singh"
+          name={useAppSelector((state)=>state.user?.name)}
           loading="eager"
-          src={uploadedAvatar}
+          src={uploadedAvatar || useAppSelector((state)=>state.user?.avatar) || undefined}
           className="flex justify-center items-center border border-black rounded-full w-36 h-36 overflow-hidden"
         />
         <FileUploadRoot
@@ -94,7 +96,6 @@ const ProfileDetails = memo(function ProfileDetails({
               : "border-2 border-white/25"
           }`}
         />
-        {/* <Input disabled={false} defaultValue={"Kamal Singh"} className={`outline-0 border-0 transition p-0 ${toggleEdit && "border-b-4 border-green-700"}`}/> */}
         <button
           type="button"
           className=" bg-white/20 p-2"

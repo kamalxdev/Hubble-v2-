@@ -22,7 +22,7 @@ model User {
   callsMade     Call[]    @relation("CallsMade")
   callsReceived Call[]    @relation("CallsReceived")
 }
-
+// sender here is someone who initiates the chat first and reciever who recieves it
 model Chat {
   id         String    @id @default(uuid())
   messages   Json?

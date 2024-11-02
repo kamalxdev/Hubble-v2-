@@ -5,8 +5,8 @@ type iUserTemplate = {
   name: string;
   username: string;
   lastMessage: string;
-  time: string;
-  avatar?: string;
+  time: Date;
+  avatar?: string | null;
 };
 function UserTemplate({
   name,
@@ -18,7 +18,7 @@ function UserTemplate({
   return (
     <div className="relative w-full flex gap-4 px-4 py-2 hover:bg-slate-900/80" key={username}>
       <div className="flex items-center justify-center">
-        <Avatar name={name} loading="lazy" src={avatar}/>
+        <Avatar name={name} loading="lazy" src={avatar || undefined}/>
       </div>
       <div className="w-full">
         <span className="flex justify-between items-center">
@@ -27,7 +27,7 @@ function UserTemplate({
         </span>
         <span className="flex justify-between items-center">
             <h4 className="truncate opacity-50">{lastMessage}</h4>
-            <h4 className="text-xs opacity-75">{time}</h4>
+            <h4 className="text-xs opacity-75">{(new Date(time))?.getDate()}</h4>
         </span>
       </div>
     </div>
