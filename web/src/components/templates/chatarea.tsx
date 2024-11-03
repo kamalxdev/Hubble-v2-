@@ -1,16 +1,20 @@
 "use client";
 
-import { memo } from "react";
+import { memo, useEffect } from "react";
 import { Avatar } from "../ui/avatar";
 import { chakra, IconButton } from "@chakra-ui/react";
 import AutoResize from "react-textarea-autosize";
 import { BsCheck, BsCheckAll, BsCheckLg, BsSend } from "react-icons/bs";
 import { IoCallOutline, IoVideocamOutline } from "react-icons/io5";
 import { HiOutlineDotsVertical } from "react-icons/hi";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 
 function ChatAreaTemplate() {
+  const friendID = useAppSelector((state)=>state.chat.currentChatAreaUserID)
+  const friend=useAppSelector((state)=>(state?.friends).filter((f)=>f?.detail?.id==friendID))[0]
+  useEffect(()=>{console.log("Friend data: ",friend);
+  },[friend])
   const StyledAutoResize = chakra(AutoResize);
-
   const chats = [
     {
       text: "Hello",
@@ -191,8 +195,8 @@ function ChatAreaTemplate() {
     <div className="relative h-screen grid grid-rows-[auto_1fr_auto] border border-slate-800">
       <div className="border-b border-slate-800 flex items-center justify-between px-7 py-3">
         <span className="flex items-center gap-3">
-          <Avatar name={"Kamal Singh"} loading="lazy" />
-          <h1 className="text-2xl font-semibold opacity-80 ">Kamal Singh</h1>
+          <Avatar name={friend?.detail?.name || "N A"} loading="lazy" />
+          <h1 className="text-2xl font-semibold opacity-80 ">{friend?.detail?.name || "N A"}</h1>
         </span>
         <span>
           {userOptions?.map(({ name, icon, onclick }) => (

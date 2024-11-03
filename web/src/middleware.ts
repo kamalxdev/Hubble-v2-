@@ -3,7 +3,6 @@ import type { NextRequest } from 'next/server'
 import authenticate from './server-actions/auth/authenticate';
 
  
-// This function can be marked `async` if using `await` inside
 export async function middleware(request: NextRequest) {
     const url = request.nextUrl.pathname;
     let authCookie = request.cookies.get('auth')
@@ -19,7 +18,6 @@ export async function middleware(request: NextRequest) {
     
 }
  
-// See "Matching Paths" below to learn more
 export const config = {
   matcher: ['/:path','/login','/register']
 }

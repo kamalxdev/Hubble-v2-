@@ -13,19 +13,20 @@ function SearchbarTemplate() {
   const [query, setQuery] = useState("");
   const [result, setResult] = useState<iFriend[]>();
   useEffect(() => {
-    query && searchUser(query)
-      .then((data) => {
-        if (!data?.success) {
-          return toaster.create({
-            title: data?.error || "Error on searching user",
-            type: "error",
-          });
-        }
-        setResult(data?.result);
-      })
-      .catch((err) => {
-        console.log("Error on searching user: ", err);
-      });
+    query &&
+      searchUser(query)
+        .then((data) => {
+          if (!data?.success) {
+            return toaster.create({
+              title: data?.error || "Error on searching user",
+              type: "error",
+            });
+          }
+          setResult(data?.result);
+        })
+        .catch((err) => {
+          console.log("Error on searching user: ", err);
+        });
   }, [query]);
 
   return (
@@ -46,6 +47,7 @@ function SearchbarTemplate() {
             <h1 className="opacity-20 text-left w-full">Result:</h1>{" "}
             {result?.map(({ name, username, id, avatar }) => (
               <User
+                id={id}
                 name={name}
                 username={username}
                 avatar={avatar}

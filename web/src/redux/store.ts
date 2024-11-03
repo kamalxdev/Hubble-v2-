@@ -1,12 +1,14 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { userReducer } from './features/user'
 import { friendReducer } from './features/friends'
+import { chatAreaReducer } from './features/chat'
 
 export const makeStore = () => {
   return configureStore({
     reducer: {
       user:userReducer,
-      friends:friendReducer
+      friends:friendReducer,
+      chat:chatAreaReducer
     }
   })
 }
