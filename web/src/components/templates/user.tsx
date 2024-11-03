@@ -4,8 +4,8 @@ import { Avatar } from "../ui/avatar";
 type iUserTemplate = {
   name: string;
   username: string;
-  lastMessage: string;
-  time: Date;
+  lastMessage?: string;
+  time?: Date;
   avatar?: string | null;
 };
 function UserTemplate({
@@ -20,14 +20,14 @@ function UserTemplate({
       <div className="flex items-center justify-center">
         <Avatar name={name} loading="lazy" src={avatar || undefined}/>
       </div>
-      <div className="w-full">
+      <div className="w-full flex justify-center flex-col ">
         <span className="flex justify-between items-center">
             <h1 className="truncate">{name}</h1>
             <h4 className="text-xs opacity-50">@<i className="italic text-sm">{username}</i></h4>
         </span>
         <span className="flex justify-between items-center">
             <h4 className="truncate opacity-50">{lastMessage}</h4>
-            <h4 className="text-xs opacity-75">{(new Date(time))?.getDate()}</h4>
+            <h4 className="text-xs opacity-75">{time && (new Date(time))?.getDate()}</h4>
         </span>
       </div>
     </div>
