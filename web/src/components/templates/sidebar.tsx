@@ -13,14 +13,27 @@ import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import authenticate from "@/server-actions/auth/authenticate";
 import { iUser, setUser } from "@/redux/features/user";
 import SettingTemplate from "./setting";
+import { socket } from "@/utils/socket";
 
 function SidebarTemplate() {
-  const dispatch=useAppDispatch();
-  useEffect(()=>{
-    authenticate().then((data:{success:boolean,user?:iUser})=>{
+  const dispatch = useAppDispatch();
+  let userID = useAppSelector((state) => state.user?.id);
+  useEffect(() => {
+    authenticate().then((data: { success: boolean; user?: iUser }) => {
       dispatch(setUser(data?.user as iUser));
-    })
-  },[])
+    });
+    console.log("server: ", process.env.NEXT_PUBLIC_SERVER_URL as string);
+  }, []);
+  useEffect(() => {
+    userID &&
+      socket.OPEN &&
+      socket.send(
+        JSON.stringify({
+          event: "user-connected",
+          payload: { id: userID },
+        })
+      );
+  }, [userID]);
   const menu = [
     {
       label: "Messages",
@@ -42,7 +55,12 @@ function SidebarTemplate() {
       <div className="flex flex-col mt-6 gap-5 ">
         <Drawer
           title="Profile"
-          icon={<Avatar name={useAppSelector((state)=>state.user?.name)} loading="lazy" />}
+          icon={
+            <Avatar
+              name={useAppSelector((state) => state.user?.name)}
+              loading="lazy"
+            />
+          }
         >
           <ProfileTemplate />
         </Drawer>
@@ -64,7 +82,7 @@ function SidebarTemplate() {
       </div>
       <div className="mb-14">
         <Drawer title="Setting" icon={<IoSettingsOutline />}>
-          <SettingTemplate/>
+          <SettingTemplate />
         </Drawer>
       </div>
     </section>
