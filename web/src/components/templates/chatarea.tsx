@@ -192,7 +192,7 @@ function ChatAreaTemplate() {
   ];
 
   return (
-    <div className="relative h-screen grid grid-rows-[auto_1fr_auto] border border-slate-800">
+    <div className="relative h-screen grid grid-rows-[8%_1fr_auto] border border-slate-800">
       <div className="border-b border-slate-800 flex items-center justify-between px-7 py-3">
         <span className="flex items-center gap-3">
           <Avatar name={friend?.detail?.name || "N A"} loading="lazy" />
