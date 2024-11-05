@@ -4,12 +4,11 @@ import { memo, useEffect, useState } from "react";
 import { Avatar } from "../ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
-  FileUploadList,
   FileUploadRoot,
   FileUploadTrigger,
 } from "@/components/ui/file-button";
 import { HiUpload } from "react-icons/hi";
-import { FileUploadFileAcceptDetails, Input } from "@chakra-ui/react";
+import { FileUploadFileAcceptDetails } from "@chakra-ui/react";
 import { FiEdit2 } from "react-icons/fi";
 import { MdOutlineDone } from "react-icons/md";
 import { useAppSelector } from "@/redux/hooks";
@@ -40,17 +39,19 @@ function ProfileTemplate() {
       defaultValue: useAppSelector((state)=>state.user?.email),
     },
   ];
+  const userAvatar= useAppSelector((state)=>state.user?.avatar)
   return (
     <div className="flex flex-col justify-center gap-8">
       <div className="flex justify-center items-center gap-3">
         <Avatar
           name={useAppSelector((state)=>state.user?.name)}
           loading="eager"
-          src={uploadedAvatar || useAppSelector((state)=>state.user?.avatar) || undefined}
+          src={uploadedAvatar || userAvatar || undefined}
           className="flex justify-center items-center border border-black rounded-full w-36 h-36 overflow-hidden"
         />
         <FileUploadRoot
           accept={["image/png", "image/jpeg"]}
+          allowDrop
           onFileAccept={handleOnFileAccept}
         >
           <FileUploadTrigger asChild>
@@ -58,7 +59,6 @@ function ProfileTemplate() {
               <HiUpload /> Upload avatar
             </Button>
           </FileUploadTrigger>
-          <FileUploadList />
         </FileUploadRoot>
       </div>
       <div className="flex flex-col gap-3">
