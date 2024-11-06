@@ -12,17 +12,22 @@ import { FileUploadFileAcceptDetails } from "@chakra-ui/react";
 import { FiEdit2 } from "react-icons/fi";
 import { MdOutlineDone } from "react-icons/md";
 import { useAppSelector } from "@/redux/hooks";
+import uploadAvatar from "@/server-actions/user/avatar";
+import { toaster } from "../ui/toaster";
+import { revalidatePath } from "next/cache";
 
 function ProfileTemplate() {
   
   const [uploadedAvatar, setUploadedAvatar] = useState<string>();
 
   function handleOnFileAccept(event: FileUploadFileAcceptDetails) {
-    // let avaterData = new FormData();
-    // avaterData.append("avatar", event?.acceptedFiles[0]);
     (event?.files[0]?.type == "image/png" ||
       event?.files[0]?.type == "image/jpeg") &&
       setUploadedAvatar(URL.createObjectURL(event.files[0]));
+
+
+    // avatarData.append("avatar", event?.files[0]);
+    // console.log("avatarData :",avatarData);  
   }
 
   const editProfileDetails = [
@@ -40,6 +45,25 @@ function ProfileTemplate() {
     },
   ];
   const userAvatar= useAppSelector((state)=>state.user?.avatar)
+
+  async function handleChangeAvatar(formData:FormData){
+    console.log("formData : ",formData.get('avatar'))
+    const avatar=await uploadAvatar(formData);
+    if(!avatar?.success){
+      toaster.create({
+        title: avatar?.error,
+        type: 'error',
+      })
+      return
+    }
+    toaster.create({
+      title: "Your avatar has been successfully changed.",
+      type: 'success',
+    })
+    // revalidatePath('/')
+    return
+  }
+
   return (
     <div className="flex flex-col justify-center gap-8">
       <div className="flex justify-center items-center gap-3">
@@ -49,10 +73,12 @@ function ProfileTemplate() {
           src={uploadedAvatar || userAvatar || undefined}
           className="flex justify-center items-center border border-black rounded-full w-36 h-36 overflow-hidden"
         />
+        <form action={handleChangeAvatar} className="flex flex-col items-center justify-center gap-3">
         <FileUploadRoot
           accept={["image/png", "image/jpeg"]}
           allowDrop
           onFileAccept={handleOnFileAccept}
+          name="avatar"
         >
           <FileUploadTrigger asChild>
             <Button className="border border-white/20 px-2 py-1" size="sm">
@@ -60,6 +86,8 @@ function ProfileTemplate() {
             </Button>
           </FileUploadTrigger>
         </FileUploadRoot>
+        <button type="submit" className="px-3 py-1 bg-white/80 text-black hover:bg-white text-sm rounded-sm">Update Avatar</button>
+        </form>
       </div>
       <div className="flex flex-col gap-3">
         {editProfileDetails?.map(({ title, defaultValue }) => (
