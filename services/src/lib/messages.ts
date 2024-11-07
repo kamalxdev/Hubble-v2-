@@ -36,14 +36,14 @@ export async function message(data: { event: string; payload: any }, ws: iwebsoc
         if (
           data?.payload?.to &&
           data?.payload?.from &&
-          data?.payload?.message
+          data?.payload?.text
         ) {
               sendMessageToSpecific(
                 {
                   event: "message-recieved",
                   payload: {
                     from: data?.payload?.from,
-                    message: data?.payload?.message,
+                    text: data?.payload?.text,
                     time: data?.payload?.time || new Date(),
                     status: data?.payload?.status,
                   },

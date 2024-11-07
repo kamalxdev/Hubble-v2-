@@ -8,11 +8,13 @@ export type iOnlineUser = {
 
 export async function setOnlineUsers(data: iOnlineUser) {
   try {
-    let current_online_user = await client.get("OnlineUser");
-    if (current_online_user) {
+    deleteOfflineUser(data?.ws_id)
+    let current_online_users = await client.get("OnlineUser");
+    if (current_online_users) {
+      
       await client.set(
         "OnlineUser",
-        JSON.stringify([...JSON.parse(current_online_user), data])
+        JSON.stringify([...JSON.parse(current_online_users), data])
       );
     } else {
       await client.set("OnlineUser", JSON.stringify([data]));
@@ -38,5 +40,21 @@ export async function findOnlineUsers(using:'db'|'ws',id:string){
     }
   } catch (error) {
     console.log("Error on finding user online",error);
+  }
+}
+
+export async function deleteOfflineUser(ws_id:string){
+  try {
+    let current_online_users = await client.get("OnlineUser");
+      let current_online_users_json: iOnlineUser[] = JSON.parse(
+        current_online_users as string
+      );
+      let filter_offline_user = current_online_users_json.filter(
+        (u) => u?.ws_id != ws_id
+      );
+      await client.set("OnlineUser", JSON.stringify(filter_offline_user));
+  } catch (error) {
+    console.log("Error on deleting offline user",error);
+    
   }
 }

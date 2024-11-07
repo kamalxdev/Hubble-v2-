@@ -3,7 +3,7 @@ import { WebSocketServer } from "ws";
 import { iwebsocket, iwebsocketServer } from "./types";
 import generateSocketID from "./lib/generateSocketID";
 import { client, startRedis } from "./redis.config";
-import { iOnlineUser } from "./lib/onlineUser";
+import { deleteOfflineUser, iOnlineUser } from "./lib/onlineUser";
 import { message } from "./lib/messages";
 import { sendMessageToAll } from "./lib/chats";
 
@@ -52,12 +52,8 @@ wss.on("connection", function connection(ws: iwebsocket) {
           });
         }
       });
-      let filter_offline_user = current_online_users_json.filter(
-        (u) => u?.ws_id != ws.id
-      );
-      await client.set("OnlineUser", JSON.stringify(filter_offline_user));
+      deleteOfflineUser(ws.id)
       console.log("Disconnect: ", ws.id);
-      console.log("online user: ", filter_offline_user);
     } catch (error) {
       console.log("Error on making user offline", error);
     }
