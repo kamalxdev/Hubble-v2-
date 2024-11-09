@@ -9,8 +9,11 @@ import { IoCallOutline, IoVideocamOutline } from "react-icons/io5";
 import { HiOutlineDotsVertical } from "react-icons/hi";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { socket } from "@/utils/socket";
+import { updateChats } from "@/redux/features/friends";
+import { iChats } from "@/types/chats";
 
 function ChatAreaTemplate() {
+  const dispatch = useAppDispatch();
   const friendID = useAppSelector((state) => state.chat.currentChatAreaUserID);
   const userID = useAppSelector((state) => state.user.id);
   const friend = useAppSelector((state) =>
@@ -18,8 +21,8 @@ function ChatAreaTemplate() {
   )[0];
   const chats = friend?.chats;
   const StyledAutoResize = chakra(AutoResize);
-  const textareaREF=useRef<HTMLTextAreaElement>(null)
-  
+  const textareaREF = useRef<HTMLTextAreaElement>(null);
+
   const userOptions = [
     {
       name: "Voice Call",
@@ -43,7 +46,8 @@ function ChatAreaTemplate() {
       },
     },
   ];
-  function handleSendMessage() {    
+  function handleSendMessage() {
+    if (!textareaREF.current?.value) return;
     socket.send(
       JSON.stringify({
         event: "message-send",
@@ -52,6 +56,18 @@ function ChatAreaTemplate() {
           from: userID,
           text: textareaREF.current?.value,
           time: new Date(),
+        },
+      })
+    );
+    let date =new Date()
+    return dispatch(
+      updateChats({
+        id: friendID,
+        chats: {
+          text: textareaREF.current?.value,
+          time: date.toISOString(),
+          type: "sender",
+          status: "unread",
         },
       })
     );
@@ -81,13 +97,13 @@ function ChatAreaTemplate() {
       <div className="relative overflow-y-scroll overflow-hidden p-4">
         <div className="relative">
           <div className="absolute inline-flex flex-col w-full gap-2">
-            {chats?.length > 1 ? (
+            {chats?.length > 0 ? (
               chats?.map(({ type, text, time, status }, index) => (
                 <Chat
                   type={type as "sender" | "reciever"}
                   text={text}
                   time={time}
-                  state={status}
+                  status={status}
                   key={text + index}
                 />
               ))
@@ -127,36 +143,31 @@ function ChatAreaTemplate() {
   );
 }
 
-type iChat = {
-  text: string;
-  state?: string;
-  type: "sender" | "reciever";
-  time: Date;
-};
-
-const Chat = memo(function Chat({ text, state, time, type }: iChat) {
+const Chat = memo(function Chat({ text, status, time, type }: iChats) {
   return (
     <span
       key={text}
       className={`flex flex-col  justify-between ${
-        type == "sender" ? "items-start" : "items-end"
+        type == "reciever" ? "items-start" : "items-end"
       }`}
     >
       <span
         className={`pt-1 pl-2 pr-1 rounded-md max-w-25 ${
-          type == "sender" ? "bg-zinc-800" : "bg-white text-black"
+          type == "reciever" ? "bg-zinc-800" : "bg-white text-black"
         }`}
       >
         <p className="truncate text-lg text-wrap">{text}</p>
         <span className="flex items-end justify-end gap-1">
           <p className="opacity-50 italic text-[0.70rem]">
-            {time && new Date(time).getDate()}
+            {time && new Date(time)
+              ?.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+              .toLowerCase()}
           </p>
-          {state ? (
+          {(type == "sender" && status ) && (status == 'read'? (
             <BsCheckAll className="text-green-700 text-lg" />
           ) : (
-            <BsCheck className="text-lg" />
-          )}
+            <BsCheck className="text-lg" /> 
+          ))}
         </span>
       </span>
     </span>

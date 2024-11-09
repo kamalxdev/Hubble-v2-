@@ -4,6 +4,6 @@
 export type iChats = {
     type: "sender" | "reciever";
     text: string;
-    time: Date;
+    time: string;
     status? : "read" | "unread" 
   };

@@ -1,21 +1,12 @@
 "use client";
 
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { useAppSelector } from "@/redux/hooks";
 import UserTemplate from "./user";
 import { Fragment, memo, useEffect } from "react";
-import { getFriends } from "@/server-actions/user/friends";
-import { socket } from "@/utils/socket";
-import { listenMessages } from "@/libs/listenMessages";
+
 
 function FriendsTemplate() {
   const friends = useAppSelector((state) => state.friends);
-  const dispatch =useAppDispatch()
-  const friendID = useAppSelector((state) => state.chat.currentChatAreaUserID);
-
-  const currentSelectedfriend = useAppSelector((state) =>
-    (state?.friends).filter((f) => f?.detail?.id == friendID)
-  )[0];
-  const chats = currentSelectedfriend?.chats;
   useEffect(() => {
     // getFriends().then((data) => {
     //   console.log("data: ", data);
@@ -23,14 +14,7 @@ function FriendsTemplate() {
     console.log("friends", friends);
   }, [friends]);
 
-  socket.onmessage = (message) => {
-    try {
-      listenMessages(chats,JSON.parse(message.data));
-      console.log("message: ", message.data);
-    } catch (error) {
-      console.log("error on listening events");
-    }
-  };
+  
 
   return (
     <div className="absolute inline-flex flex-col w-full">

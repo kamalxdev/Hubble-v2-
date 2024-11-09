@@ -14,6 +14,7 @@ import authenticate from "@/server-actions/auth/authenticate";
 import { iUser, setUser } from "@/redux/features/user";
 import SettingTemplate from "./setting";
 import { socket } from "@/utils/socket";
+import { listenMessages } from "@/libs/listenMessages";
 
 function SidebarTemplate() {
   const dispatch = useAppDispatch();
@@ -50,6 +51,17 @@ function SidebarTemplate() {
       },
     },
   ];
+  
+  // listening to socket messages 
+  const allFriends = useAppSelector((state)=>state.friends)
+  socket.onmessage = (message) => {
+    try {
+      listenMessages(dispatch,allFriends,JSON.parse(message.data));
+      console.log("message: ", message.data);
+    } catch (error) {
+      console.log("error on listening events");
+    }
+  };
   return (
     <section className="flex flex-col bg-slate-950 h-dvh items-center justify-between text-white px-2">
       <div className="flex flex-col mt-6 gap-5 ">
