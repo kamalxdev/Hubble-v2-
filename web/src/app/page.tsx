@@ -1,10 +1,11 @@
 import ChatAreaTemplate from "@/components/templates/chatarea";
 import FriendsTemplate from "@/components/templates/friends";
 import SidebarTemplate from "@/components/templates/sidebar";
-import Image from "next/image";
 
 export default function Home() {
-
+  // const isChatSelected=useAppSelector((state)=>state.chat.currentChatAreaUserID)
+  // console.log("isChatSelected: ", isChatSelected);
+  
   return (
     <section className="flex flex-nowrap bg-slate-950">
       <section className="relative border border-slate-800">

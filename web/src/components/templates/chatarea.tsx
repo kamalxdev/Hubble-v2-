@@ -72,6 +72,13 @@ function ChatAreaTemplate() {
       })
     );
   }
+  if(!friendID) {
+    return (
+      <div className="flex justify-center items-center opacity-25">
+        Start a new conversation or coninue to previous chats 
+      </div>
+    )
+  }
   return (
     <div className="relative h-screen grid grid-rows-[8%_1fr_auto] border border-slate-800">
       <div className="border-b border-slate-800 flex items-center justify-between px-7 py-3">
@@ -108,7 +115,7 @@ function ChatAreaTemplate() {
                 />
               ))
             ) : (
-              <div className="flex justify-center font-semibold text-lg opacity-20">
+              <div className="flex justify-center font-semibold text-base opacity-10">
                 Start a Conversation by typing a message below.
               </div>
             )}
