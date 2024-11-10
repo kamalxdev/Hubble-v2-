@@ -8,14 +8,14 @@ export async function middleware(request: NextRequest) {
     let authCookie = request.cookies.get('auth')
     if (url.startsWith('/login') || url.startsWith('/register')){
         if(authCookie){
-            return NextResponse.redirect(new URL('/',request.url))
+            const authenticateUserTOKEN= await authenticate();
+            if(authenticateUserTOKEN?.success) return NextResponse.redirect(new URL('/',request.url))
         }
     } else if(url.startsWith('/')){
         if(!authCookie) return NextResponse.redirect(new URL('/login',request.url))
         const authenticateUserTOKEN= await authenticate();
         if(!authenticateUserTOKEN?.success) return NextResponse.redirect(new URL('/login',request.url))
     }
-    
 }
  
 export const config = {

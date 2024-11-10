@@ -12,15 +12,18 @@ export default async function uploadAvatar(avatar: FormData) {
     }
     const authenticateReq = await authenticate();
     if (!authenticateReq?.success) return authenticateReq;
+
     // uploading avatar to cloudinary
     const upload_avatar = (await upload(avatar)) as UploadApiResponse;
 
     if (!upload_avatar?.secure_url) {
       return { success: false, error: "Error in Uploading avatar" };
     }
+
     // deleting the previous avatar, if any
     authenticateReq?.user?.avatar &&
       (await deleteFile(authenticateReq?.user?.avatar));
+
     const updated_avatar_on_DB = await prisma.user.update({
       where: {
         id: authenticateReq?.user?.id,

@@ -18,7 +18,7 @@ import { listenMessages } from "@/libs/listenMessages";
 
 function SidebarTemplate() {
   const dispatch = useAppDispatch();
-  let userID = useAppSelector((state) => state.user?.id);
+  let user = useAppSelector((state) => state.user);
   useEffect(() => {
     authenticate().then((data: { success: boolean; user?: iUser }) => {
       dispatch(setUser(data?.user as iUser));
@@ -26,15 +26,15 @@ function SidebarTemplate() {
     console.log("server: ", process.env.NEXT_PUBLIC_SERVER_URL as string);
   }, []);
   useEffect(() => {
-    userID &&
+    user?.id &&
       socket.OPEN &&
       socket.send(
         JSON.stringify({
           event: "user-connected",
-          payload: { id: userID },
+          payload: { id: user?.id },
         })
       );
-  }, [userID]);
+  }, [user]);
   const menu = [
     {
       label: "Messages",
@@ -70,7 +70,8 @@ function SidebarTemplate() {
           icon={
             <Avatar
               name={useAppSelector((state) => state.user?.name)}
-              loading="lazy"
+              loading="eager"
+              src={user?.avatar|| undefined}
             />
           }
         >

@@ -75,7 +75,7 @@ function ChatAreaTemplate() {
   if(!friendID) {
     return (
       <div className="flex justify-center items-center opacity-25">
-        Start a new conversation or coninue to previous chats 
+        Start a new conversation or continue to previous chats 
       </div>
     )
   }

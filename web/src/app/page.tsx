@@ -3,8 +3,6 @@ import FriendsTemplate from "@/components/templates/friends";
 import SidebarTemplate from "@/components/templates/sidebar";
 
 export default function Home() {
-  // const isChatSelected=useAppSelector((state)=>state.chat.currentChatAreaUserID)
-  // console.log("isChatSelected: ", isChatSelected);
   
   return (
     <section className="flex flex-nowrap bg-slate-950">
