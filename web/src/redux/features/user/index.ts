@@ -21,11 +21,9 @@ export const userSlice=createSlice({
     reducers:{
         setUser:(state,action:PayloadAction<iUser>)=>{
             let {id,name,avatar,username,email}=action.payload;
-            state.id=id;
-            state.name=name;
-            state.email=email;
-            state.avatar=avatar || '';
-            state.username=username;
+            return {
+                ...state,id,name,email,avatar,username
+            }
         }
     }
 })

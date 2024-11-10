@@ -1,9 +1,7 @@
 
-
-
-export type iChats = {
-    type: "sender" | "reciever";
-    text: string;
-    time: string;
-    status? : "read" | "unread" 
-  };
+export type iMessages = {
+  text: string;
+  time: string;
+  status?: "read" | "unread";
+  from: string;
+};

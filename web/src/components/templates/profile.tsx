@@ -29,9 +29,10 @@ function ProfileTemplate() {
   const dispatch = useAppDispatch();
 
   function handleOnFileAccept(event: FileUploadFileAcceptDetails) {
-    (event?.files[0]?.type == "image/png" ||
-      event?.files[0]?.type == "image/jpeg") &&
-      setUploadedAvatar(event.files[0]);
+    let avatarfile=event?.files[0];
+    (avatarfile?.type == "image/png" ||
+      avatarfile?.type == "image/jpeg") &&
+      setUploadedAvatar(avatarfile);
   }
 
   const editProfileDetails = [
@@ -149,12 +150,12 @@ const ProfileDetails = memo(function ProfileDetails({
 }: iProfileDetails) {
   const [toggleEdit, setToggleEdit] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-  const [value, setValue] = useState<string>("");
+  const [value, setValue] = useState<string>();
   const user = useAppSelector((state) => state.user);
   const dispatch = useAppDispatch();
   async function handleSubmit() {
     if(toggleEdit){
-      if(value==defaultValue) return setToggleEdit(false)
+      if(value==defaultValue || !value) return setToggleEdit(false)
       setLoading(true);
       const update = await updateUser({ [title.toLowerCase()]: value });
       if (!update?.success) {
@@ -171,7 +172,7 @@ const ProfileDetails = memo(function ProfileDetails({
         title: "Profile updated successfully",
         type: "success",
       });
-    }else {
+    } else {
       setToggleEdit(true)
     }
   }

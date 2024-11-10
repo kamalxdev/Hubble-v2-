@@ -14,7 +14,7 @@ export default function Home() {
           <h1 className="text-2xl font-semibold opacity-80 border-b border-slate-800 p-4">
             Messages
           </h1>
-          <div className="relative overflow-y-scroll overflow-hidden px-4">
+          <div className="relative overflow-y-scroll overflow-hidden px-2">
             <div className="relative">
               <FriendsTemplate/>
             </div>

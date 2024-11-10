@@ -1,36 +1,59 @@
 "use client";
 
-import { useAppSelector } from "@/redux/hooks";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import UserTemplate from "./user";
-import { Fragment, memo, useEffect } from "react";
-
+import { Fragment, memo, useEffect, useState } from "react";
+import { getFriends } from "@/server-actions/user/friends";
+import { iFriendSlice, setFriends } from "@/redux/features/friends";
+import { HStack, Stack, Text } from "@chakra-ui/react";
+import {
+  Skeleton,
+  SkeletonCircle,
+  SkeletonText,
+} from "@/components/ui/skeleton";
 
 function FriendsTemplate() {
-  const friends = useAppSelector((state) => state.friends);
+  const dispatch = useAppDispatch();
+  const friends = useAppSelector((state) => state.friends)
+  const reversedFriends=[...friends]?.reverse()
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
-    // getFriends().then((data) => {
-    //   console.log("data: ", data);
-    // });
-    console.log("friends", friends);
-  }, [friends]);
+    getFriends().then((data) => {
+      setLoading(false);
+      dispatch(setFriends(data?.friends as iFriendSlice[]));
+      console.log("Friends: ",friends);
 
-  
+    });
+  }, []);
+  const dummySkeletonFriends = ["", "", "", "", "", "", ""];
+  if (loading) {
+    return (
+      <div className="absolute inline-flex flex-col w-full gap-4 mt-2">
+        {dummySkeletonFriends?.map((f,i) => (
+          <HStack width="full" key={i}>
+            <SkeletonCircle size="10" />
+            <SkeletonText noOfLines={2} />
+          </HStack>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className="absolute inline-flex flex-col w-full">
-      {friends.length > 0 ? (
-        friends?.map(({ detail, chats }, index) => (
+      {friends?.length > 0 ? (
+        reversedFriends?.map(({ detail, messages }, index) => (
           <Fragment key={detail?.username}>
             <UserTemplate
               id={detail?.id}
               name={detail?.name}
-              lastMessage={chats && chats[chats?.length - 1]?.text}
-              time={chats && chats[chats?.length - 1]?.time}
+              lastMessage={messages && messages[messages?.length - 1]?.text}
+              time={messages && messages[messages?.length - 1]?.time}
               avatar={detail?.avatar}
               username={detail?.username}
               key={detail?.username}
             />
-            {friends?.length != index + 1 && <hr className="mx-2 opacity-35" />}
+            {friends?.length != index + 1 && <hr className="mx-2 opacity-5" />}
           </Fragment>
         ))
       ) : (

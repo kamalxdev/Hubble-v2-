@@ -23,14 +23,14 @@ function UserTemplate({
   const dispatch = useAppDispatch();
   function handleUserClick() {
     dispatch(
-      updateFriends({ detail: { id, name, username, avatar }, chats: [] })
+      updateFriends({ detail: { id, name, username, avatar }, messages: [] })
     );
     dispatch(setCurrentChatAreaUserID(id));
   }
   return (
     <button
       onClick={handleUserClick}
-      className="relative w-full flex items-center gap-4 px-4 py-2 hover:bg-slate-900/80"
+      className="relative w-full flex items-center gap-4 p-2 hover:bg-slate-900/30 rounded-sm"
       key={username}
     >
       <div className="flex items-center justify-center">

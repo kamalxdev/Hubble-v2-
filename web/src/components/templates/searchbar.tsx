@@ -8,10 +8,12 @@ import searchUser from "@/server-actions/user/search";
 import { iFriend } from "@/types/user";
 import User from "./user";
 import { toaster } from "../ui/toaster";
+import { useAppSelector } from "@/redux/hooks";
 
 function SearchbarTemplate() {
   const [query, setQuery] = useState("");
   const [result, setResult] = useState<iFriend[]>();
+  const friends = useAppSelector((state) => state?.friends);
   useEffect(() => {
     query &&
       searchUser(query)
@@ -42,7 +44,7 @@ function SearchbarTemplate() {
         </InputGroup>
       </HStack>
       <div className="flex flex-col mt-5 justify-center items-center w-full">
-        {query && result && (
+        {query && result ? (
           <>
             <h1 className="opacity-20 text-left w-full">Result:</h1>{" "}
             {result?.map(({ name, username, id, avatar }) => (
@@ -53,7 +55,22 @@ function SearchbarTemplate() {
                 avatar={avatar}
                 key={username}
               />
-            ))}{" "}
+            ))}
+          </>
+        ) : (
+          <>
+            {friends?.length > 0 &&
+              friends?.map(({ detail, messages }) => (
+                <User
+                  id={detail?.id}
+                  name={detail?.name}
+                  username={detail?.username}
+                  lastMessage={messages && messages[messages?.length - 1]?.text}
+                  time={messages && messages[messages?.length - 1]?.time}
+                  avatar={detail?.avatar}
+                  key={detail?.username}
+                />
+              ))}
           </>
         )}
       </div>
