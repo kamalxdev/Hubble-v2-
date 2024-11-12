@@ -3,14 +3,14 @@
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import storeMessages from "@/server-actions/chats/storeMessages";
 import { chakra, IconButton } from "@chakra-ui/react";
-import { useRef } from "react";
+import { memo, useRef } from "react";
 import AutoResize from "react-textarea-autosize";
 import { toaster } from "./toaster";
 import { socket } from "@/utils/socket";
 import { updateChats } from "@/redux/features/friends";
 import { BsSend } from "react-icons/bs";
 
-export default function SendMessageButton() {
+function SendMessageButton() {
   const userID = useAppSelector((state) => state.user.id);
   const dispatch = useAppDispatch();
   const friendID = useAppSelector((state) => state.chat.currentChatAreaUserID);
@@ -20,6 +20,28 @@ export default function SendMessageButton() {
   async function handleSendMessage() {
     if (!textareaREF.current?.value) return;
     let date = new Date();
+    socket.send(
+      JSON.stringify({
+        event: "message-send",
+        payload: {
+          to: friendID,
+          from: userID,
+          text: textareaREF.current?.value,
+          time: date.toISOString(),
+        },
+      })
+    );
+    dispatch(
+      updateChats({
+        id: friendID,
+        chats: {
+          text: textareaREF.current?.value,
+          time: date.toISOString(),
+          from: userID,
+          status: "unread",
+        },
+      })
+    );
     const storeChat = await storeMessages({
       sender: userID,
       reciever: friendID,
@@ -35,28 +57,6 @@ export default function SendMessageButton() {
         title: "Error on storing message",
         type: "error",
       });
-    socket.send(
-      JSON.stringify({
-        event: "message-send",
-        payload: {
-          to: friendID,
-          from: userID,
-          text: textareaREF.current?.value,
-          time: new Date(),
-        },
-      })
-    );
-    return dispatch(
-      updateChats({
-        id: friendID,
-        chats: {
-          text: textareaREF.current?.value,
-          time: date.toISOString(),
-          from: userID,
-          status: "unread",
-        },
-      })
-    );
   }
 
   return (
@@ -70,8 +70,7 @@ export default function SendMessageButton() {
           lineHeight="inherit"
           className=" border-0 outline-0 w-full h-full p-3 flex items-center"
           ref={textareaREF}
-          // onChange={(e) => {setMessage(e.target.value)}}
-          // defaultValue={message}
+          defaultValue={"Write here"}
         />
       </span>
       <span className="relative">
@@ -86,3 +85,7 @@ export default function SendMessageButton() {
     </>
   );
 }
+
+
+
+export default memo(SendMessageButton)

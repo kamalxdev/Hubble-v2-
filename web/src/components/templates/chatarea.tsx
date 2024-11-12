@@ -1,21 +1,21 @@
 "use client";
 
-import { memo,useRef} from "react";
+import { memo, useEffect, useRef } from "react";
 import { Avatar } from "../ui/avatar";
-import { chakra, IconButton} from "@chakra-ui/react";
+import { chakra, IconButton } from "@chakra-ui/react";
 import AutoResize from "react-textarea-autosize";
-import { BsCheck, BsCheckAll} from "react-icons/bs";
+import { BsCheck, BsCheckAll } from "react-icons/bs";
 import { IoCallOutline, IoVideocamOutline } from "react-icons/io5";
 import { HiOutlineDotsVertical } from "react-icons/hi";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { iMessages } from "@/types/chats";
 import SendMessageButton from "../ui/sendMessagebutton";
-
+import { socket } from "@/utils/socket";
 
 function ChatAreaTemplate() {
   const friendID = useAppSelector((state) => state.chat.currentChatAreaUserID);
   const friend = useAppSelector((state) =>
-    (state?.friends)?.filter((f) => f?.detail?.id == friendID)
+    state?.friends?.filter((f) => f?.detail?.id == friendID)
   )[0];
   const chats = friend?.messages;
 
@@ -42,7 +42,7 @@ function ChatAreaTemplate() {
       },
     },
   ];
-  
+
   if (!friendID) {
     return (
       <div className="flex justify-center items-center opacity-25 border border-slate-800">
@@ -50,6 +50,20 @@ function ChatAreaTemplate() {
       </div>
     );
   }
+
+  useEffect(() => {
+    if (chats?.length > 0) {
+      socket.send(
+        JSON.stringify({
+          event: "message-read",
+          payload: {
+            id: friendID,
+          },
+        })
+      );
+    }
+  }, [chats]);
+
   return (
     <div className="relative h-screen grid grid-rows-[8%_1fr_auto] border border-slate-800">
       <div className="border-b border-slate-800 flex items-center justify-between px-7 py-3">
@@ -94,7 +108,7 @@ function ChatAreaTemplate() {
         </div>
       </div>
       <div className="relative w-full max-h-40 overflow-hidden flex items-center px-5 py-2 gap-2">
-        <SendMessageButton/>
+        <SendMessageButton />
       </div>
     </div>
   );
@@ -102,7 +116,7 @@ function ChatAreaTemplate() {
 
 const Chat = memo(function Chat({ text, status, time, from }: iMessages) {
   const userID = useAppSelector((state) => state.user.id);
-  const isUserMsg= from == userID
+  const isUserMsg = from == userID;
   return (
     <span
       key={text}
@@ -112,7 +126,7 @@ const Chat = memo(function Chat({ text, status, time, from }: iMessages) {
     >
       <span
         className={`pt-1 pl-2 pr-1 rounded-md max-w-25 ${
-          isUserMsg? "bg-white text-black" : " bg-zinc-800"
+          isUserMsg ? "bg-white text-black" : " bg-zinc-800"
         }`}
       >
         <p className="truncate text-lg text-wrap">{text}</p>
