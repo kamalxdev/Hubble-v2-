@@ -1,6 +1,6 @@
 import { memo } from "react";
 import { Avatar } from "../ui/avatar";
-import { useAppDispatch } from "@/redux/hooks";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { setCurrentChatAreaUserID } from "@/redux/features/chat";
 import { updateFriends } from "@/redux/features/friends";
 
@@ -27,10 +27,16 @@ function UserTemplate({
     );
     dispatch(setCurrentChatAreaUserID(id));
   }
+
+  const currentUserID = useAppSelector(
+    (state) => state?.chat?.currentChatAreaUserID
+  );
   return (
     <button
       onClick={handleUserClick}
-      className="relative w-full flex items-center gap-4 p-2 hover:bg-slate-900/30 rounded-sm"
+      className={`relative w-full flex items-center gap-4 p-2 rounded-sm transition-all ${
+        id == currentUserID ? "bg-slate-900/50" : "hover:bg-slate-900/30"
+      }`}
       key={username}
     >
       <div className="flex items-center justify-center">

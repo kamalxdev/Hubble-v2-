@@ -40,7 +40,7 @@ function FriendsTemplate() {
   }
 
   return (
-    <div className="absolute inline-flex flex-col w-full">
+    <div className="absolute inline-flex flex-col w-full py-2 transition-all">
       {friends?.length > 0 ? (
         reversedFriends?.map(({ detail, messages }, index) => (
           <Fragment key={detail?.username}>
