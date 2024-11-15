@@ -40,7 +40,7 @@ function UserTemplate({
       key={username}
     >
       <div className="flex items-center justify-center">
-        <Avatar name={name} loading="lazy" src={avatar || undefined} />
+        <Avatar name={name} loading="eager" src={avatar || undefined} />
       </div>
       <div className="w-full flex justify-center flex-col ">
         <span className="flex justify-between items-center">

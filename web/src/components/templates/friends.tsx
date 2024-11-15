@@ -7,7 +7,6 @@ import { getFriends } from "@/server-actions/user/friends";
 import { iFriendSlice, setFriends } from "@/redux/features/friends";
 import { HStack, Stack, Text } from "@chakra-ui/react";
 import {
-  Skeleton,
   SkeletonCircle,
   SkeletonText,
 } from "@/components/ui/skeleton";
@@ -22,9 +21,8 @@ function FriendsTemplate() {
       setLoading(false);
       dispatch(setFriends(data?.friends as iFriendSlice[]));
       console.log("Friends: ",friends);
-
     });
-  }, []);
+  },[]);
   const dummySkeletonFriends = ["", "", "", "", "", "", ""];
   if (loading) {
     return (
@@ -51,7 +49,7 @@ function FriendsTemplate() {
               time={messages && messages[messages?.length - 1]?.time}
               avatar={detail?.avatar}
               username={detail?.username}
-              key={detail?.username}
+              key={detail?.username+index}
             />
             {friends?.length != index + 1 && <hr className="mx-2 opacity-5" />}
           </Fragment>

@@ -43,14 +43,6 @@ function ChatAreaTemplate() {
     },
   ];
 
-  if (!friendID) {
-    return (
-      <div className="flex justify-center items-center opacity-25 border border-slate-800">
-        Start a new conversation or continue to previous chats
-      </div>
-    );
-  }
-
   useEffect(() => {
     if (chats?.length > 0) {
       socket.send(
@@ -64,11 +56,21 @@ function ChatAreaTemplate() {
     }
   }, [chats]);
 
+
+  if (!friendID) {
+    return (
+      <div className="flex justify-center items-center opacity-25 border border-slate-800">
+        Start a new conversation or continue to previous chats
+      </div>
+    );
+  }
+
+
   return (
     <div className="relative h-screen grid grid-rows-[8%_1fr_auto] border border-slate-800">
       <div className="border-b border-slate-800 flex items-center justify-between px-7 py-3">
         <span className="flex items-center gap-3">
-          <Avatar name={friend?.detail?.name || "N A"} loading="lazy" />
+          <Avatar name={friend?.detail?.name || "N A"} loading="eager" src={friend?.detail?.avatar || undefined}/>
           <h1 className="text-2xl font-semibold opacity-80 ">
             {friend?.detail?.name || "N A"}
           </h1>

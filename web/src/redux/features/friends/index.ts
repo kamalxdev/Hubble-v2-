@@ -40,8 +40,8 @@ export const friendSlice = createSlice({
       state.push(Updatedfriendar);
     },
     setFriends: (state, action: PayloadAction<iFriendSlice[]>) => {
-      
-      return [...state, ...(action?.payload)]
+
+      return [...(action?.payload)]
       
 
     },

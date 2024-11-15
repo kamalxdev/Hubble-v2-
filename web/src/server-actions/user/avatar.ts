@@ -1,6 +1,6 @@
 "use server";
 
-import { deleteFile, upload } from "@/utils/cloudinary";
+import { deleteFile, getFile, upload } from "@/utils/cloudinary";
 import authenticate from "../auth/authenticate";
 import { prisma } from "@/utils/prisma";
 import { UploadApiResponse } from "cloudinary";
@@ -24,12 +24,13 @@ export default async function uploadAvatar(avatar: FormData) {
     authenticateReq?.user?.avatar &&
       (await deleteFile(authenticateReq?.user?.avatar));
 
+    const avatar_optimize_url = await getFile(upload_avatar?.public_id);
     const updated_avatar_on_DB = await prisma.user.update({
       where: {
         id: authenticateReq?.user?.id,
       },
       data: {
-        avatar: upload_avatar?.secure_url,
+        avatar: avatar_optimize_url,
       },
     });
     if (!updated_avatar_on_DB)
@@ -37,7 +38,7 @@ export default async function uploadAvatar(avatar: FormData) {
         error: "Error on updating in database",
         success: false,
       };
-    return { avatar: upload_avatar.secure_url, success: true };
+    return { avatar: avatar_optimize_url, success: true };
   } catch (error) {
     console.log("Error from updating avatar: ", error);
     return { success: false, error: "Internal Server Error" };

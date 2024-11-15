@@ -57,6 +57,7 @@ function SendMessageButton() {
         title: "Error on storing message",
         type: "error",
       });
+      textareaREF.current.value=""
   }
 
   return (
@@ -70,7 +71,6 @@ function SendMessageButton() {
           lineHeight="inherit"
           className=" border-0 outline-0 w-full h-full p-3 flex items-center"
           ref={textareaREF}
-          defaultValue={"Write here"}
         />
       </span>
       <span className="relative">
