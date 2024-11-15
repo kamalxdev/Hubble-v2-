@@ -2,32 +2,33 @@
 
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import UserTemplate from "./user";
-import { Fragment, memo, useEffect, useState } from "react";
+import { Fragment, memo, useEffect,useState } from "react";
 import { getFriends } from "@/server-actions/user/friends";
 import { iFriendSlice, setFriends } from "@/redux/features/friends";
-import { HStack, Stack, Text } from "@chakra-ui/react";
-import {
-  SkeletonCircle,
-  SkeletonText,
-} from "@/components/ui/skeleton";
+import { HStack, } from "@chakra-ui/react";
+import { SkeletonCircle, SkeletonText } from "@/components/ui/skeleton";
 
 function FriendsTemplate() {
   const dispatch = useAppDispatch();
-  const friends = useAppSelector((state) => state.friends)
-  const reversedFriends=[...friends]?.reverse()
-  const [loading, setLoading] = useState(true);
+  const friends = useAppSelector((state) => state.friends);
+  const reversedFriends = [...friends]?.reverse();
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
-    getFriends().then((data) => {
-      setLoading(false);
-      dispatch(setFriends(data?.friends as iFriendSlice[]));
-      console.log("Friends: ",friends);
-    });
-  },[]);
+    if (friends?.length == 0) {
+      setLoading(true)
+      getFriends().then((data) => {
+        setLoading(false);
+        dispatch(setFriends(data?.friends as iFriendSlice[]));
+        console.log("Friends: ", friends);
+      });
+    }
+  }, []);
   const dummySkeletonFriends = ["", "", "", "", "", "", ""];
   if (loading) {
     return (
       <div className="absolute inline-flex flex-col w-full gap-4 mt-2">
-        {dummySkeletonFriends?.map((f,i) => (
+        {dummySkeletonFriends?.map((f, i) => (
           <HStack width="full" key={i}>
             <SkeletonCircle size="10" />
             <SkeletonText noOfLines={2} />
@@ -49,7 +50,7 @@ function FriendsTemplate() {
               time={messages && messages[messages?.length - 1]?.time}
               avatar={detail?.avatar}
               username={detail?.username}
-              key={detail?.username+index}
+              key={detail?.username + index}
             />
             {friends?.length != index + 1 && <hr className="mx-2 opacity-5" />}
           </Fragment>

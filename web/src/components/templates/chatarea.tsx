@@ -18,6 +18,7 @@ function ChatAreaTemplate() {
     state?.friends?.filter((f) => f?.detail?.id == friendID)
   )[0];
   const chats = friend?.messages;
+  const divref = useRef(null);
 
   const userOptions = [
     {
@@ -43,6 +44,14 @@ function ChatAreaTemplate() {
     },
   ];
 
+
+  useEffect(() => {
+    if (divref.current) {
+      (divref?.current as HTMLElement)?.scrollIntoView({ behavior: "smooth" });
+    }
+  });
+
+  
   useEffect(() => {
     if (chats?.length > 0) {
       socket.send(
@@ -56,7 +65,6 @@ function ChatAreaTemplate() {
     }
   }, [chats]);
 
-
   if (!friendID) {
     return (
       <div className="flex justify-center items-center opacity-25 border border-slate-800">
@@ -65,12 +73,15 @@ function ChatAreaTemplate() {
     );
   }
 
-
   return (
     <div className="relative h-screen grid grid-rows-[8%_1fr_auto] border border-slate-800">
       <div className="border-b border-slate-800 flex items-center justify-between px-7 py-3">
         <span className="flex items-center gap-3">
-          <Avatar name={friend?.detail?.name || "N A"} loading="eager" src={friend?.detail?.avatar || undefined}/>
+          <Avatar
+            name={friend?.detail?.name || "N A"}
+            loading="eager"
+            src={friend?.detail?.avatar || undefined}
+          />
           <h1 className="text-2xl font-semibold opacity-80 ">
             {friend?.detail?.name || "N A"}
           </h1>
@@ -106,6 +117,7 @@ function ChatAreaTemplate() {
                 Start a Conversation by typing a message below.
               </div>
             )}
+            <div ref={divref}></div>
           </div>
         </div>
       </div>
