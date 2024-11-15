@@ -9,16 +9,18 @@ import { IoCallOutline, IoSettingsOutline } from "react-icons/io5";
 import Drawer from "./drawer";
 import SearchbarTemplate from "./searchbar";
 import ProfileTemplate from "./profile";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { useAppDispatch, useAppSelector, useAppStore } from "@/redux/hooks";
 import authenticate from "@/server-actions/auth/authenticate";
 import { iUser, setUser } from "@/redux/features/user";
 import SettingTemplate from "./setting";
 import { socket } from "@/utils/socket";
 import { listenMessages } from "@/libs/listenMessages";
+import { sideBarToggle } from "@/redux/features/toggle";
 
 function SidebarTemplate() {
   const dispatch = useAppDispatch();
   let user = useAppSelector((state) => state.user);
+  const toggle= useAppSelector((state)=>state.toggle)
   useEffect(() => {
     authenticate().then((data: { success: boolean; user?: iUser }) => {
       dispatch(setUser(data?.user as iUser));
@@ -40,14 +42,14 @@ function SidebarTemplate() {
       label: "Messages",
       icon: <PiChatText />,
       onclick: () => {
-        alert("label");
+        dispatch(sideBarToggle("messages"))
       },
     },
     {
       label: "Calls",
       icon: <IoCallOutline />,
       onclick: () => {
-        alert("label");
+        dispatch(sideBarToggle("calls"))
       },
     },
   ];
@@ -85,7 +87,7 @@ function SidebarTemplate() {
             <IconButton
               aria-label={label}
               key={label}
-              className="transition hover:bg-slate-900"
+              className={`transition-all ${toggle == label.toLowerCase()?  "bg-green-600/80" :"hover:bg-slate-900"}`}
               onClick={onclick}
             >
               {icon}
