@@ -2,20 +2,13 @@
 
 import { prisma } from "@/utils/prisma";
 import authenticate from "../auth/authenticate";
+import { selectDataforuser } from "@/libs/prismaSelect";
 
 export async function getFriends() {
   try {
     const authenticateReq = await authenticate();
     if (!authenticateReq?.success) return {success:false,error:"User not authorized"};
 
-    let selectDataforuser = {
-      select: {
-        name: true,
-        username: true,
-        id: true,
-        avatar: true,
-      },
-    };
 
     const friends = await prisma.user.findUnique({
       where: { id: authenticateReq?.user?.id },

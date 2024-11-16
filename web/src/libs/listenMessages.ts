@@ -1,13 +1,25 @@
 import {
+  callAnswered,
+  callRejected,
+  iCallSlice,
+  setCall,
+} from "@/redux/features/call";
+import {
   iFriendSlice,
   updateChats,
   updateFriends,
 } from "@/redux/features/friends";
+// import { initializeWebRTCpeers, startStreaming } from "@/redux/features/webRTC";
+import verifyCall from "@/server-actions/call/verify";
 import getUser from "@/server-actions/user/user";
 import { iDispatch } from "@/types/dispatch";
+import { iFriend } from "@/types/user";
+import { socket } from "@/utils/socket";
+import { peers, startStreaming } from "@/utils/webRTC";
 
 export async function listenMessages(
   dispatch: iDispatch,
+  call: iCallSlice | {},
   allFriends: iFriendSlice[],
   data: { event: string; payload: any }
 ) {
@@ -62,7 +74,7 @@ export async function listenMessages(
                 chats: {
                   text: data?.payload?.text,
                   time: data?.payload?.time,
-                  type: "reciever",
+                  from: data?.payload?.from,
                   status: "unread",
                 },
               })
@@ -75,11 +87,11 @@ export async function listenMessages(
             dispatch(
               updateFriends({
                 detail: friend.user,
-                chats: [
+                messages: [
                   {
                     text: data?.payload?.text,
                     time: data?.payload?.time,
-                    type: "reciever",
+                    from: data?.payload?.from,
                     status: "unread",
                   },
                 ],
@@ -128,7 +140,8 @@ export async function listenMessages(
       //             [data?.payload?.id]: false,
       //           });
       //         }, 1000);
-      //       } else {
+      //       } else {        console.log("message-send", JSON.stringify(data), ws.id);
+
       //         openChat.setTyping({ [data?.payload?.id]: true });
       //         setTimeout(() => {
       //           openChat.setTyping({ [data?.payload?.id]: false });
@@ -137,96 +150,86 @@ export async function listenMessages(
       //     }
       //     break;
       //
-      // reciever side: reciever gets call from sender(who initiated the call)
-      //   case "call-user-recieved":
-      //     if (data?.payload?.id && data?.payload?.type && data?.payload?.callID) {
-      //       webRTC?.setCall({
-      //         ...webRTC?.call,
-      //         user: { id: data?.payload?.id },
-      //         type: data?.payload?.type,
-      //         Useris: "reciever",
-      //         answered: false,
-      //         callID:data?.payload?.callID
-      //       });
-      //     }
-      //     break;
+      // call recieved from a friend
+      case "call-received":
+        if (data?.payload?.id && data?.payload?.type && data?.payload?.from) {
+          const verifyCaller = await verifyCall(data?.payload?.id);
+          if (verifyCaller?.success) {
+            dispatch(
+              setCall({
+                id: data?.payload?.id,
+                user: verifyCaller?.call?.caller,
+                isAnswered: false,
+                isSender: false,
+                type: data?.payload?.type,
+              })
+            );
+          }
+        }
+        break;
+      // call answer revieved from reciever
+      case "call-answer-received":
+        if (data?.payload?.id) {
+          if (data?.payload?.accepted) {
+            dispatch(callAnswered());
+            // dispatch(initializeWebRTCpeers())
+            // dispatch(startStreaming(data?.payload?.type))
+            startStreaming(data?.payload?.type);
+          } else {
+            dispatch(callRejected());
+          }
+        }
+        break;
       //
-      //
-      //   case "call-user-answer-recieved":
-      //     if (data?.payload?.id) {
-      //       if (data?.payload?.accepted) {
-      //         webRTC?.setCall({ ...webRTC?.call, answered: true });
-      //         webRTC?.sendData(data?.payload?.type);
-      //       } else {
-      //         webRTC?.setCall({});
-      //       }
-      //     }
-      //     break;
-      //
-      // reciever part: listening to call offer from sender(who initiated the call)
-      //   case "call-offer-recieved":
-      //     if (data?.payload?.id && data?.payload?.type && data?.payload?.offer) {
-      //       await webRTC?.peer?.reciever?.setRemoteDescription(
-      //         data?.payload?.offer
-      //       );
-      //       let answer = await webRTC?.peer?.reciever?.createAnswer();
-      //       await webRTC?.peer?.reciever?.setLocalDescription(answer);
-      //       webRTC?.setCall({ ...webRTC?.call, answered: true });
-      //       socket.send(
-      //         JSON.stringify({
-      //           event: "call-answer",
-      //           payload: {
-      //             id: data?.payload?.id,
-      //             type: webRTC?.call?.type,
-      //             answer: webRTC?.peer?.reciever?.localDescription,
-      //           },
-      //         })
-      //       );
-      //     }
-      //     break;
-      //
+      // Call offer from sender
+      case "call-offer-received":
+        if (data?.payload?.id && data?.payload?.type && data?.payload?.offer) {
+          await peers?.receiver?.setRemoteDescription(data?.payload?.offer);
+          let answer = await peers?.receiver?.createAnswer();
+          await peers?.receiver?.setLocalDescription(answer);
+          socket.send(
+            JSON.stringify({
+              event: "call-offer-answer",
+              payload: {
+                id: data?.payload?.id,
+                type: (call as iCallSlice)?.type,
+                answer: peers?.receiver?.localDescription,
+              },
+            })
+          );
+        }
+        break;
+
       // sender part: listening to senders call offer answer sent earlier
-      //   case "call-answer-recieved":
-      //     if (data?.payload?.id && data?.payload?.type && data?.payload?.answer) {
-      //       await webRTC?.peer?.sender?.setRemoteDescription(
-      //         data?.payload?.answer
-      //       );
-      //     }
+      case "call-offer-answer-recieved":
+        if (data?.payload?.id && data?.payload?.type && data?.payload?.answer) {
+          await peers?.sender?.setRemoteDescription(data?.payload?.answer);
+        }
 
-      //     break;
-      //
-      //
-      //   case "call-user-iceCandidate-recieved":
-      //     if (data?.payload?.iceCandidate && data?.payload?.from) {
-      //       if (data?.payload?.from == "reciever") {
-      //         console.log("icecandidate set to sender");
+        break;
 
-      //         await webRTC?.peer?.sender?.addIceCandidate(
-      //           data?.payload?.iceCandidate
-      //         );
-      //       }
-      //       if (data?.payload?.from == "sender") {
-      //         console.log("icecandidate set to reciever");
-
-      //         await webRTC?.peer?.reciever?.addIceCandidate(
-      //           data?.payload?.iceCandidate
-      //         );
-      //       }
-      //     }
-      //     break;
-      //
-      //
-      //   case "call-ended":
-      //     if (data?.payload?.id) {
-      //       webRTC?.setCall({});
-      //       webRTC?.peer?.sender?.close();
-      //       webRTC?.peer?.reciever?.close();
-      //       webRTC?.setPeer({
-      //         sender: new RTCPeerConnection(),
-      //         reciever: new RTCPeerConnection(),
-      //       });
-      //     }
-      //     break;
+      // recieving iveCandidate from sender and reciever
+      case "call-iceCandidate-recieved":
+        if (data?.payload?.iceCandidate && data?.payload?.from) {
+          if (data?.payload?.from == "receiver") {
+            await peers?.sender?.addIceCandidate(data?.payload?.iceCandidate);
+          }
+          if (data?.payload?.from == "sender") {
+            await peers?.receiver?.addIceCandidate(data?.payload?.iceCandidate);
+          }
+        }
+        break;
+      
+      // Cleanup on call end
+      case "call-ended":
+        if (data?.payload?.id) {
+          dispatch(callRejected());
+          peers?.sender?.close();
+          peers?.receiver?.close();
+          peers.sender = new RTCPeerConnection();
+          peers.receiver = new RTCPeerConnection();
+        }
+        break;
       //
       default:
         console.log("no event found");

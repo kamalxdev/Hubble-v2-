@@ -5,7 +5,6 @@ import authenticate from "../auth/authenticate";
 import { Prisma } from "@prisma/client/edge";
 import { iMessages } from "@/types/chats";
 
-interface iExtendMessage extends Prisma.JsonArray, iMessages {}
 
 export default async function markChatasRead(friendID: string) {
   try {

@@ -2,8 +2,7 @@
 
 import { memo, useEffect, useRef } from "react";
 import { Avatar } from "../ui/avatar";
-import { chakra, IconButton } from "@chakra-ui/react";
-import AutoResize from "react-textarea-autosize";
+import { IconButton } from "@chakra-ui/react";
 import { BsCheck, BsCheckAll } from "react-icons/bs";
 import { IoCallOutline, IoVideocamOutline } from "react-icons/io5";
 import { HiOutlineDotsVertical } from "react-icons/hi";
@@ -11,8 +10,12 @@ import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { iMessages } from "@/types/chats";
 import SendMessageButton from "../ui/sendMessagebutton";
 import { socket } from "@/utils/socket";
+import { setCall } from "@/redux/features/call";
+import newCall from "@/server-actions/call/new";
+import { toaster } from "../ui/toaster";
 
 function ChatAreaTemplate() {
+  const dispatch = useAppDispatch();
   const friendID = useAppSelector((state) => state.chat.currentChatAreaUserID);
   const friend = useAppSelector((state) =>
     state?.friends?.filter((f) => f?.detail?.id == friendID)
@@ -20,20 +23,28 @@ function ChatAreaTemplate() {
   const chats = friend?.messages;
   const divref = useRef(null);
 
+  async function makeCall(type: "video" | "voice") {
+    dispatch(
+      setCall({
+        user: friend.detail,
+        isAnswered: false,
+        isSender: true,
+        type,
+        id: "",
+      })
+    );
+  }
+
   const userOptions = [
     {
       name: "Voice Call",
       icon: <IoCallOutline />,
-      onclick: () => {
-        alert("label");
-      },
+      onclick: ()=>makeCall("voice"),
     },
     {
       name: "Video Call",
       icon: <IoVideocamOutline />,
-      onclick: () => {
-        alert("label");
-      },
+      onclick: ()=>makeCall("video"),
     },
     {
       name: "Options",
@@ -44,14 +55,12 @@ function ChatAreaTemplate() {
     },
   ];
 
-
   useEffect(() => {
     if (divref.current) {
       (divref?.current as HTMLElement)?.scrollIntoView({ behavior: "smooth" });
     }
   });
 
-  
   useEffect(() => {
     if (chats?.length > 0) {
       socket.send(

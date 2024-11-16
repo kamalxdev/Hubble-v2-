@@ -2,8 +2,8 @@ import { configureStore } from "@reduxjs/toolkit";
 import { userReducer } from "./features/user";
 import { friendReducer } from "./features/friends";
 import { chatAreaReducer } from "./features/chat";
-import { webRTCreducer } from "./features/webRTC";
 import { toggleReducer } from "./features/toggle";
+import { callreducer } from "./features/call";
 
 export const makeStore = () => {
   return configureStore({
@@ -11,8 +11,8 @@ export const makeStore = () => {
       user: userReducer,
       friends: friendReducer,
       chat: chatAreaReducer,
-      webRTC: webRTCreducer,
       toggle: toggleReducer,
+      call:callreducer
     },
   });
 };

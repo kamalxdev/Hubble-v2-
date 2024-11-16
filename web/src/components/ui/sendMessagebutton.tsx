@@ -20,13 +20,15 @@ function SendMessageButton() {
   async function handleSendMessage() {
     if (!textareaREF.current?.value) return;
     let date = new Date();
+    let text = textareaREF.current?.value;
+    textareaREF.current.value = "";
     socket.send(
       JSON.stringify({
         event: "message-send",
         payload: {
           to: friendID,
           from: userID,
-          text: textareaREF.current?.value,
+          text,
           time: date.toISOString(),
         },
       })
@@ -35,7 +37,7 @@ function SendMessageButton() {
       updateChats({
         id: friendID,
         chats: {
-          text: textareaREF.current?.value,
+          text,
           time: date.toISOString(),
           from: userID,
           status: "unread",
@@ -47,7 +49,7 @@ function SendMessageButton() {
       reciever: friendID,
       message: {
         from: userID,
-        text: textareaREF.current?.value,
+        text,
         status: "unread",
         time: date.toISOString(),
       },
@@ -57,7 +59,6 @@ function SendMessageButton() {
         title: "Error on storing message",
         type: "error",
       });
-      textareaREF.current.value=""
   }
 
   return (
@@ -86,6 +87,4 @@ function SendMessageButton() {
   );
 }
 
-
-
-export default memo(SendMessageButton)
+export default memo(SendMessageButton);

@@ -8,7 +8,7 @@ import { message } from "./lib/messages";
 import { sendMessageToAll } from "./lib/chats";
 import redisSubscribe from "./lib/subscriber";
 
-const PORT = process.env.PORT || 5000
+const PORT = process.env.PORT || 5000;
 
 const server = http.createServer((req, res) => {
   let url = req.url;
@@ -17,9 +17,9 @@ const server = http.createServer((req, res) => {
 
 export const wss = new WebSocketServer({ server }) as iwebsocketServer;
 
-startRedis()
+startRedis();
 
-wss.on("connection", async  function connection(ws: iwebsocket) {
+wss.on("connection", async function connection(ws: iwebsocket) {
   // generates a unique id for clients
   ws.id = generateSocketID();
   console.log("Connected: ", ws.id);
@@ -31,11 +31,11 @@ wss.on("connection", async  function connection(ws: iwebsocket) {
   ws.on("message", async (data: any, isBinary) => {
     try {
       if (data) {
-      const parsedData = JSON.parse(data);
-
-        console.log("Data: ", parsedData);
-        
-        await PublisherClient.publish('socket',JSON.stringify({data:parsedData,ws}))
+        const parsedData = JSON.parse(data);
+        await PublisherClient.publish(
+          "socket",
+          JSON.stringify({ data: parsedData, ws })
+        );
       } else {
         ws.send("No data to send");
       }
@@ -59,7 +59,7 @@ wss.on("connection", async  function connection(ws: iwebsocket) {
           });
         }
       });
-      deleteOfflineUser(ws.id)
+      deleteOfflineUser(ws.id);
       console.log("Disconnect: ", ws.id);
     } catch (error) {
       console.log("Error on making user offline", error);
@@ -72,5 +72,4 @@ server.listen(PORT, () => {
   console.log(`Server is listening on PORT ${PORT}`);
 });
 
-
-redisSubscribe()
+redisSubscribe();
