@@ -1,8 +1,17 @@
 
-export var peers = {
-  sender: new RTCPeerConnection(),
-  receiver: new RTCPeerConnection(),
-};
+type iPeers={
+  sender?:RTCPeerConnection;
+  receiver?:RTCPeerConnection;
+}
+
+export var peers = {} as iPeers
+
+export function initializePeers(){
+  peers = {
+    sender: new RTCPeerConnection(),
+    receiver: new RTCPeerConnection(),
+  };
+}
 
 export function startStreaming(type: "video" | "voice") {
   if (peers?.sender) {

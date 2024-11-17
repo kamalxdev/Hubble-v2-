@@ -2,10 +2,10 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { iFriend } from "@/types/user";
 
 export type iCallSlice = {
-  id: String;
+  id: string;
   user: iFriend | undefined;
-  isAnswered: Boolean;
-  isSender:Boolean;
+  isAnswered: boolean;
+  isSender:boolean;
   type: "video" | "voice"
 };
 

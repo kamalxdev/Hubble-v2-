@@ -11,7 +11,8 @@ import {
   setCall,
 } from "@/redux/features/call";
 import { socket } from "@/utils/socket";
-import { startStreaming } from "@/utils/webRTC";
+import { initializePeers, startStreaming } from "@/utils/webRTC";
+import { toaster } from "../ui/toaster";
 // import { initializeWebRTCpeers, startStreaming } from "@/redux/features/webRTC";
 
 function IncomingCallTemplate() {
@@ -43,21 +44,31 @@ function IncomingCallTemplate() {
     };
   }, []);
   function handleAcceptCall() {
-    dispatch(callAnswered());
-    // dispatch(initializeWebRTCpeers());
-    // dispatch(startStreaming(call?.type));
-    startStreaming(call?.type)
-    socket.send(
-      JSON.stringify({
-        event: "call-answer",
-        payload: {
-          id: call?.id,
-          accepted: true,
-          type: call?.type,
-          to: call?.user?.id,
-        },
+    navigator.mediaDevices
+      .getUserMedia({ video: true, audio: true })
+      .then((stream) => {
+        dispatch(callAnswered());
+        initializePeers();
+        startStreaming(call?.type);
+        socket.send(
+          JSON.stringify({
+            event: "call-answer",
+            payload: {
+              id: call?.id,
+              accepted: true,
+              type: call?.type,
+              to: call?.user?.id,
+            },
+          })
+        );
       })
-    );
+      .catch((err) => {
+        console.log("Error on getting user media", err);
+        toaster.create({
+          title: "Access to media is required",
+          type: "info",
+        });
+      });
   }
   function handleRejectCall() {
     socket.send(

@@ -9,13 +9,13 @@ import {
   updateChats,
   updateFriends,
 } from "@/redux/features/friends";
-// import { initializeWebRTCpeers, startStreaming } from "@/redux/features/webRTC";
 import verifyCall from "@/actions/call/verify";
 import getUser from "@/actions/user/user";
 import { iDispatch } from "@/types/dispatch";
 import { iFriend } from "@/types/user";
 import { socket } from "@/utils/socket";
-import { peers, startStreaming } from "@/utils/webRTC";
+import { initializePeers, peers, startStreaming } from "@/utils/webRTC";
+import setCallAnswered from "@/actions/call/answered";
 
 export async function listenMessages(
   dispatch: iDispatch,
@@ -171,10 +171,10 @@ export async function listenMessages(
       case "call-answer-received":
         if (data?.payload?.id) {
           if (data?.payload?.accepted) {
+            initializePeers()
             dispatch(callAnswered());
-            // dispatch(initializeWebRTCpeers())
-            // dispatch(startStreaming(data?.payload?.type))
             startStreaming(data?.payload?.type);
+            await setCallAnswered((call as iCallSlice)?.id)
           } else {
             dispatch(callRejected());
           }
