@@ -10,7 +10,7 @@ import Drawer from "./drawer";
 import SearchbarTemplate from "./searchbar";
 import ProfileTemplate from "./profile";
 import { useAppDispatch, useAppSelector, useAppStore } from "@/redux/hooks";
-import authenticate from "@/server-actions/auth/authenticate";
+import authenticate from "@/actions/auth/authenticate";
 import { iUser, setUser } from "@/redux/features/user";
 import SettingTemplate from "./setting";
 import { socket } from "@/utils/socket";

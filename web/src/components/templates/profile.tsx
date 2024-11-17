@@ -17,11 +17,11 @@ import {
 import { FiEdit2 } from "react-icons/fi";
 import { MdOutlineDone } from "react-icons/md";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import uploadAvatar from "@/server-actions/user/avatar";
+import uploadAvatar from "@/actions/user/avatar";
 import { toaster } from "../ui/toaster";
 import { ProgressCircleRing, ProgressCircleRoot } from "../ui/progress-circle";
 import { setUser } from "@/redux/features/user";
-import updateUser from "@/server-actions/user/update";
+import updateUser from "@/actions/user/update";
 
 function ProfileTemplate() {
   const [uploadedAvatar, setUploadedAvatar] = useState<File>();

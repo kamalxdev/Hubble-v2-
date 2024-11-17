@@ -10,8 +10,8 @@ import {
   updateFriends,
 } from "@/redux/features/friends";
 // import { initializeWebRTCpeers, startStreaming } from "@/redux/features/webRTC";
-import verifyCall from "@/server-actions/call/verify";
-import getUser from "@/server-actions/user/user";
+import verifyCall from "@/actions/call/verify";
+import getUser from "@/actions/user/user";
 import { iDispatch } from "@/types/dispatch";
 import { iFriend } from "@/types/user";
 import { socket } from "@/utils/socket";

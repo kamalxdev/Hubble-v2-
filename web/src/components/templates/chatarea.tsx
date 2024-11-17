@@ -11,7 +11,7 @@ import { iMessages } from "@/types/chats";
 import SendMessageButton from "../ui/sendMessagebutton";
 import { socket } from "@/utils/socket";
 import { setCall } from "@/redux/features/call";
-import newCall from "@/server-actions/call/new";
+import newCall from "@/actions/call/new";
 import { toaster } from "../ui/toaster";
 
 function ChatAreaTemplate() {

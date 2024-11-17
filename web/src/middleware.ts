@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import authenticate from "./server-actions/auth/authenticate";
+import authenticate from "./actions/auth/authenticate";
 
 export async function middleware(request: NextRequest) {
   const url = request.nextUrl.pathname;

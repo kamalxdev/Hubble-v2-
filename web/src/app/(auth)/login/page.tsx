@@ -6,7 +6,7 @@ import { useState } from "react";
 import { PasswordInput } from "@/components/ui/password-input";
 import Link from "next/link";
 import { PinInput } from "@/components/ui/pin-input";
-import { validateFormData, validateOTPandLoginUser } from "@/server-actions/auth/login";
+import { validateFormData, validateOTPandLoginUser } from "@/actions/auth/login";
 import {
   ProgressCircleRing,
   ProgressCircleRoot,

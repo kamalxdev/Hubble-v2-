@@ -1,7 +1,7 @@
 "use client";
 
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import storeMessages from "@/server-actions/chats/storeMessages";
+import storeMessages from "@/actions/chats/storeMessages";
 import { chakra, IconButton } from "@chakra-ui/react";
 import { memo, useRef } from "react";
 import AutoResize from "react-textarea-autosize";

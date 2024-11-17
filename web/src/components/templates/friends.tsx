@@ -3,7 +3,7 @@
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import UserTemplate from "./user";
 import { Fragment, memo, useEffect,useState } from "react";
-import { getFriends } from "@/server-actions/user/friends";
+import { getFriends } from "@/actions/user/friends";
 import { iFriendSlice, setFriends } from "@/redux/features/friends";
 import { HStack, } from "@chakra-ui/react";
 import { SkeletonCircle, SkeletonText } from "@/components/ui/skeleton";

@@ -4,7 +4,7 @@ import { memo, useEffect, useState } from "react";
 import { HStack, Input } from "@chakra-ui/react";
 import { InputGroup } from "../ui/input-group";
 import { CiSearch } from "react-icons/ci";
-import searchUser from "@/server-actions/user/search";
+import searchUser from "@/actions/user/search";
 import { iFriend } from "@/types/user";
 import User from "./user";
 import { toaster } from "../ui/toaster";

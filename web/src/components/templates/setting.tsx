@@ -1,6 +1,6 @@
 import { memo } from "react";
 import { Button } from "../ui/button";
-import logOut from "@/server-actions/auth/logout";
+import logOut from "@/actions/auth/logout";
 import { toaster } from "../ui/toaster";
 import { useRouter } from "next/navigation";
 

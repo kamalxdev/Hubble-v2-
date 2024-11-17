@@ -2,7 +2,7 @@
 
 import { callRejected, iCallSlice, setCall } from "@/redux/features/call";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import newCall from "@/server-actions/call/new";
+import newCall from "@/actions/call/new";
 import { IconButton } from "@chakra-ui/react";
 import { memo, useEffect, useRef, useState } from "react";
 import { AiFillAudio } from "react-icons/ai";
