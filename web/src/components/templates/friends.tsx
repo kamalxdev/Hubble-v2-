@@ -2,11 +2,10 @@
 
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import UserTemplate from "./user";
-import { Fragment, memo, useEffect,useState } from "react";
+import { Fragment, memo, useEffect, useState } from "react";
 import { getFriends } from "@/actions/user/friends";
 import { iFriendSlice, setFriends } from "@/redux/features/friends";
-import { HStack, } from "@chakra-ui/react";
-import { SkeletonCircle, SkeletonText } from "@/components/ui/skeleton";
+import UserSkeletonTemplate from "./userSkeleton";
 
 function FriendsTemplate() {
   const dispatch = useAppDispatch();
@@ -16,7 +15,7 @@ function FriendsTemplate() {
 
   useEffect(() => {
     if (friends?.length == 0) {
-      setLoading(true)
+      setLoading(true);
       getFriends().then((data) => {
         setLoading(false);
         dispatch(setFriends(data?.friends as iFriendSlice[]));
@@ -24,18 +23,8 @@ function FriendsTemplate() {
       });
     }
   }, []);
-  const dummySkeletonFriends = ["", "", "", "", "", "", ""];
   if (loading) {
-    return (
-      <div className="absolute inline-flex flex-col w-full gap-4 mt-2">
-        {dummySkeletonFriends?.map((f, i) => (
-          <HStack width="full" key={i}>
-            <SkeletonCircle size="10" />
-            <SkeletonText noOfLines={2} />
-          </HStack>
-        ))}
-      </div>
-    );
+    return <UserSkeletonTemplate />;
   }
 
   return (

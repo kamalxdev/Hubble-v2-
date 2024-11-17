@@ -26,4 +26,4 @@ export const callSlice = createSlice({
 });
 
 export const { setCall ,callAnswered,callRejected} = callSlice.actions;
-export const callreducer = callSlice.reducer;
+export const callReducer = callSlice.reducer;

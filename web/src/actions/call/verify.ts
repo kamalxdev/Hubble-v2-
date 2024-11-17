@@ -25,7 +25,7 @@ export default async function verifyCall(id:string) {
     return { success: true, call };
     
   } catch (error) {
-    console.log("Error on creating new call: ", error);
+    console.log("Error on verifying a call: ", error);
     return { success: false, error: "Internal Server Error" };
   }
 }

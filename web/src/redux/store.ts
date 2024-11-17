@@ -3,7 +3,8 @@ import { userReducer } from "./features/user";
 import { friendReducer } from "./features/friends";
 import { chatAreaReducer } from "./features/chat";
 import { toggleReducer } from "./features/toggle";
-import { callreducer } from "./features/call";
+import { callReducer } from "./features/call";
+import { callHistoryReducer } from "./features/callHistory";
 
 export const makeStore = () => {
   return configureStore({
@@ -12,7 +13,8 @@ export const makeStore = () => {
       friends: friendReducer,
       chat: chatAreaReducer,
       toggle: toggleReducer,
-      call:callreducer
+      call:callReducer,
+      callHistory:callHistoryReducer
     },
   });
 };
