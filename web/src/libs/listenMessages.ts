@@ -208,7 +208,7 @@ export async function listenMessages(
 
         break;
 
-      // recieving iveCandidate from sender and reciever
+      // recieving iceCandidate from sender and reciever
       case "call-iceCandidate-recieved":
         if (data?.payload?.iceCandidate && data?.payload?.from) {
           if (data?.payload?.from == "receiver") {

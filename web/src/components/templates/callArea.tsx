@@ -4,7 +4,7 @@ import { callRejected, iCallSlice, setCall } from "@/redux/features/call";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import newCall from "@/actions/call/new";
 import { IconButton } from "@chakra-ui/react";
-import { memo, useEffect, useRef, useState } from "react";
+import { memo, RefObject, useEffect, useRef, useState } from "react";
 import { AiFillAudio } from "react-icons/ai";
 import { IoVideocam } from "react-icons/io5";
 import { MdCallEnd, MdFullscreen } from "react-icons/md";
@@ -29,29 +29,6 @@ function CallAreaTemplate() {
     fullScreen: false,
   });
 
-  useEffect(() => {
-    if (peers?.receiver) {
-      peers.receiver.ontrack = (event) => {
-        if (friend_video?.current) {
-          friend_video.current.srcObject = new MediaStream([event.track]);
-        }
-      };
-
-      const track1 = peers?.receiver?.getTransceivers()[0]?.receiver?.track;
-      const track2 = peers?.receiver?.getTransceivers()[1]?.receiver?.track;
-
-      if (friend_video?.current && friend_mic.current && track1 && track2) {
-        // const another_user_audio = new Audio();
-        // another_user_audio.srcObject = new MediaStream([track1]);
-        // another_user_audio.play();
-        friend_mic.current.srcObject = new MediaStream([track1]);
-        friend_video.current.srcObject = new MediaStream([track2]);
-      }
-    }
-  }, [
-    peers?.receiver?.getTransceivers()[1]?.receiver?.track,
-    peers?.receiver?.getTransceivers()[0]?.receiver?.track,
-  ]);
   // webrtc setup starts
 
   if (peers?.sender) {
@@ -74,7 +51,9 @@ function CallAreaTemplate() {
     // generating offer and starting connection
     peers.sender.onnegotiationneeded = async () => {
       let offer = await peers?.sender?.createOffer();
+
       await peers?.sender?.setLocalDescription(offer);
+
       socket.send(
         JSON.stringify({
           event: "call-offer",
@@ -125,7 +104,9 @@ function CallAreaTemplate() {
             type: "error",
           });
         }
+
         setCalling(false);
+
         socket.send(
           JSON.stringify({
             event: "call-send",
@@ -136,6 +117,7 @@ function CallAreaTemplate() {
             },
           })
         );
+
         dispatch(
           setCall({
             ...call,
@@ -145,20 +127,25 @@ function CallAreaTemplate() {
       })
       .catch((err) => {
         console.log("Error on getting user media", err);
+
         dispatch(callRejected());
+
         toaster.create({
           title: "Access to media is required",
           type: "info",
         });
       });
   }, []);
+
   // toggle handlers
+
   function handleonVideoToggle() {
     if (toggleCalls?.video) {
       user_video?.current?.pause();
     } else {
       user_video?.current?.play();
     }
+
     if (peers?.sender?.getSenders()[1]?.track?.kind == "video") {
       (peers.sender.getSenders()[1].track as MediaStreamTrack).enabled =
         !peers?.sender?.getSenders()[1]?.track?.enabled;
@@ -168,8 +155,10 @@ function CallAreaTemplate() {
           .track as MediaStreamTrack
       ).enabled = !peers?.sender?.getSenders()[0]?.track?.enabled;
     }
+
     setToggleCalls({ ...toggleCalls, video: !toggleCalls?.video });
   }
+
   function handleonAudioToggle() {
     if (peers?.sender?.getSenders()[1]?.track?.kind == "audio") {
       (peers.sender.getSenders()[1].track as MediaStreamTrack).enabled =
@@ -180,103 +169,176 @@ function CallAreaTemplate() {
           .track as MediaStreamTrack
       ).enabled = !peers?.sender?.getSenders()[0]?.track?.enabled;
     }
+
     setToggleCalls({ ...toggleCalls, audio: !toggleCalls?.audio });
   }
+
   function handleonPIPToggle() {
     if (toggleCalls?.pip) {
       document?.pictureInPictureElement && document?.exitPictureInPicture();
     } else {
       friend_video?.current?.requestPictureInPicture();
     }
+
     setToggleCalls({ ...toggleCalls, pip: !toggleCalls?.pip });
   }
+
   function handleonFullScreenToggle() {
     if (toggleCalls?.fullScreen) {
       document?.fullscreenElement && document?.exitFullscreen();
     } else {
       friend_video?.current?.requestFullscreen({ navigationUI: "hide" });
     }
+
     setToggleCalls({ ...toggleCalls, fullScreen: !toggleCalls?.fullScreen });
   }
+
   function handleonEndCall() {
     peers?.sender?.close();
     peers?.receiver?.close();
+
     socket.send(
       JSON.stringify({
         event: "call-end",
         payload: { id: call?.user?.id },
       })
     );
+
     peers.sender = new RTCPeerConnection();
     peers.receiver = new RTCPeerConnection();
+
     dispatch(callRejected());
   }
+
+  const toggleButtons = [
+    {
+      label: "Video",
+      classname: toggleCalls?.video ? "bg-green-500" : "hover:bg-slate-900",
+      onclick: () => handleonVideoToggle(),
+      icon: <IoVideocam />,
+    },
+    {
+      label: "Audio",
+      classname: toggleCalls?.audio ? "bg-green-500" : "hover:bg-slate-900",
+      onclick: () => handleonAudioToggle(),
+      icon: <AiFillAudio />,
+    },
+    {
+      label: "Full Screen",
+      classname: "hover:bg-slate-900",
+      onclick: () => handleonFullScreenToggle(),
+      icon: <MdFullscreen />,
+    },
+    {
+      label: "Picture In Picture",
+      classname: "hover:bg-slate-900",
+      onclick: () => handleonPIPToggle(),
+      icon: <PiPictureInPictureFill />,
+    },
+    {
+      label: "End Call",
+      classname: "hover:bg-red-700",
+      onclick: () => handleonEndCall(),
+      icon: <MdCallEnd />,
+    },
+  ];
+
   return (
     <section className="relative w-full border border-slate-800">
       <div className="w-full h-full relative">
-        <span className="relative w-full h-full object-contain flex items-center justify-center z-30">
-          <video
-            autoPlay
-            ref={friend_video}
-            muted
-            className="absolute w-full h-full"
-          ></video>
-          <audio ref={friend_mic} className="hidden" autoPlay></audio>
-        </span>
-        <span className="absolute w-2/12 h-auto z-40 bottom-20 right-20 drop-shadow-2xl border border-slate-800 rounded-md overflow-hidden">
-          <video
-            autoPlay
-            ref={user_video}
-            muted
-            className={`w-full h-full ${!toggleCalls?.video && "blur-sm"}`}
-          ></video>
-        </span>
+        {call?.type == "video" ? (
+          <VideoCallTemplate
+            friend_video={friend_video}
+            friend_mic={friend_mic}
+            user_video={user_video}
+            isVideoEnabled={toggleCalls?.video}
+          />
+        ) : (
+          ""
+        )}
       </div>
       <div className="absolute w-full h-full top-0 z-40 flex flex-col items-center justify-end lg:pb-16">
         <span className="bg-slate-950 justify-around flex lg:gap-3 w-full lg:w-auto p-2 lg:rounded-md">
-          <IconButton
-            aria-label="Video"
-            className={`transition-all ${
-              toggleCalls?.video ? "bg-green-500" : "hover:bg-slate-900"
-            }`}
-            onClick={handleonVideoToggle}
-          >
-            <IoVideocam />
-          </IconButton>
-          <IconButton
-            aria-label="Audio"
-            className={`transition-all ${
-              toggleCalls?.audio ? "bg-green-500" : "hover:bg-slate-900"
-            }`}
-            onClick={handleonAudioToggle}
-          >
-            <AiFillAudio />
-          </IconButton>
-          <IconButton
-            aria-label="Full Screen"
-            className={`transition-all hover:bg-slate-900`}
-            onClick={handleonFullScreenToggle}
-          >
-            <MdFullscreen />
-          </IconButton>
-          <IconButton
-            aria-label="Picture In Picture"
-            className={`transition-all hover:bg-slate-900`}
-            onClick={handleonPIPToggle}
-          >
-            <PiPictureInPictureFill />
-          </IconButton>
-          <IconButton
-            aria-label="End Call"
-            className={`transition-all hover:bg-red-700`}
-            onClick={handleonEndCall}
-          >
-            <MdCallEnd />
-          </IconButton>
+          {toggleButtons?.map(({ label, classname, onclick, icon }) => (
+            <IconButton
+              aria-label={label}
+              className={`transition-all ${classname}`}
+              onClick={onclick}
+              key={label}
+            >
+              {icon}
+            </IconButton>
+          ))}
         </span>
       </div>
     </section>
   );
 }
+
+type iVideoCallTemplate = {
+  friend_video: RefObject<HTMLVideoElement>;
+  friend_mic: RefObject<HTMLAudioElement>;
+  user_video: RefObject<HTMLVideoElement>;
+  isVideoEnabled: boolean;
+};
+
+const VideoCallTemplate = memo(function VideoCallTemplate({
+  friend_video,
+  friend_mic,
+  user_video,
+  isVideoEnabled,
+}: iVideoCallTemplate) {
+  const [peerState, setPeerState] = useState(peers);
+  useEffect(() => {
+    if (peers?.receiver) {
+      peers.receiver.ontrack = (event) => {
+        if (friend_video?.current) {
+          friend_video.current.srcObject = new MediaStream([event.track]);
+        }
+      };
+
+      const track1 = peers?.receiver?.getTransceivers()[0]?.receiver?.track;
+      const track2 = peers?.receiver?.getTransceivers()[1]?.receiver?.track;
+
+      if (friend_video?.current && friend_mic?.current && track1 && track2) {
+        console.log("Got track :", track1, track2);
+        friend_mic.current.srcObject = new MediaStream([track1]);
+        friend_video.current.srcObject = new MediaStream([track2]);
+      }
+    }
+    console.log(
+      "from state: ",
+      peerState?.receiver?.getTransceivers()[1]?.receiver?.track,
+      peerState?.receiver?.getTransceivers()[0]?.receiver?.track
+    );
+  }, [
+    peers?.receiver?.getTransceivers()[1]?.receiver?.track,
+    peers?.receiver?.getTransceivers()[0]?.receiver?.track,
+    peerState?.receiver?.getTransceivers()[1]?.receiver?.track,
+    peerState?.receiver?.getTransceivers()[0]?.receiver?.track,
+  ]);
+
+  return (
+    <>
+      <span className="relative w-full h-full object-contain flex items-center justify-center z-30">
+        <video
+          autoPlay
+          ref={friend_video}
+          muted
+          className="absolute w-full h-full"
+        ></video>
+        <audio ref={friend_mic} className="hidden" autoPlay></audio>
+      </span>
+      <span className="absolute w-2/12 h-auto z-40 bottom-20 right-20 drop-shadow-2xl border border-slate-800 rounded-md overflow-hidden">
+        <video
+          autoPlay
+          ref={user_video}
+          muted
+          className={`w-full h-full ${!isVideoEnabled && "blur-sm"}`}
+        ></video>
+      </span>
+    </>
+  );
+});
 
 export default memo(CallAreaTemplate);

@@ -49,7 +49,6 @@ function IncomingCallTemplate() {
       .then((stream) => {
         dispatch(callAnswered());
         initializePeers();
-        startStreaming(call?.type);
         socket.send(
           JSON.stringify({
             event: "call-answer",
@@ -61,6 +60,7 @@ function IncomingCallTemplate() {
             },
           })
         );
+        startStreaming(call?.type);
       })
       .catch((err) => {
         console.log("Error on getting user media", err);
