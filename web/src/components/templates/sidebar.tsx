@@ -16,9 +16,12 @@ import SettingTemplate from "./setting";
 import { socket } from "@/utils/socket";
 import { listenMessages } from "@/libs/listenMessages";
 import { sideBarToggle } from "@/redux/features/toggle";
+import { usePeersProvider } from "@/hooks/peers";
 
 function SidebarTemplate() {
   const dispatch = useAppDispatch();
+  const peer = usePeersProvider();
+
   let user = useAppSelector((state) => state.user);
   const toggle= useAppSelector((state)=>state.toggle)
   useEffect(() => {
@@ -58,7 +61,7 @@ function SidebarTemplate() {
   const state=useAppSelector((state)=>state)
   socket.onmessage = (message) => {
     try {
-      listenMessages(dispatch,state,JSON.parse(message.data));
+      listenMessages(dispatch,state,peer,JSON.parse(message.data));
       console.log("message: ", message.data);
     } catch (error) {
       console.log("error on listening events");

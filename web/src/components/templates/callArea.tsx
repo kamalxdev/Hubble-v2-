@@ -11,10 +11,12 @@ import { MdCallEnd, MdFullscreen } from "react-icons/md";
 import { PiPictureInPictureFill } from "react-icons/pi";
 import { toaster } from "../ui/toaster";
 import { socket } from "@/utils/socket";
-import { peers } from "@/utils/webRTC";
+import { usePeersProvider } from "@/hooks/peers";
 
 function CallAreaTemplate() {
   const dispatch = useAppDispatch();
+  const peer = usePeersProvider();
+
   const call = useAppSelector((state) => state?.call) as iCallSlice;
 
   const user_video = useRef<HTMLVideoElement>(null);
@@ -28,64 +30,6 @@ function CallAreaTemplate() {
     pip: false,
     fullScreen: false,
   });
-
-  // webrtc setup starts
-
-  if (peers?.sender) {
-    // icecandidate for sender
-    peers.sender.onicecandidate = (event) => {
-      if (event.candidate) {
-        socket?.send(
-          JSON.stringify({
-            event: "call-iceCandidate",
-            payload: {
-              id: (call as iCallSlice)?.user?.id,
-              from: "sender",
-              iceCandidate: event?.candidate,
-            },
-          })
-        );
-      }
-    };
-
-    // generating offer and starting connection
-    peers.sender.onnegotiationneeded = async () => {
-      let offer = await peers?.sender?.createOffer();
-
-      await peers?.sender?.setLocalDescription(offer);
-
-      socket.send(
-        JSON.stringify({
-          event: "call-offer",
-          payload: {
-            id: (call as iCallSlice)?.user?.id,
-            type: (call as iCallSlice)?.type,
-            offer: peers?.sender?.localDescription,
-          },
-        })
-      );
-    };
-  }
-
-  // iceCandidate for receiver
-  if (peers?.receiver) {
-    peers.receiver.onicecandidate = (event) => {
-      if (event.candidate) {
-        socket?.send(
-          JSON.stringify({
-            event: "call-iceCandidate",
-            payload: {
-              id: (call as iCallSlice)?.user?.id,
-              from: "receiver",
-              iceCandidate: event?.candidate,
-            },
-          })
-        );
-      }
-    };
-  }
-
-  // webrtc setup ends
 
   useEffect(() => {
     navigator.mediaDevices
@@ -146,28 +90,28 @@ function CallAreaTemplate() {
       user_video?.current?.play();
     }
 
-    if (peers?.sender?.getSenders()[1]?.track?.kind == "video") {
-      (peers.sender.getSenders()[1].track as MediaStreamTrack).enabled =
-        !peers?.sender?.getSenders()[1]?.track?.enabled;
-    } else if (peers?.sender?.getSenders()[0]?.track?.kind == "video") {
+    if (peer?.peers?.sender?.getSenders()[1]?.track?.kind == "video") {
+      (peer?.peers.sender.getSenders()[1].track as MediaStreamTrack).enabled =
+        !peer?.peers?.sender?.getSenders()[1]?.track?.enabled;
+    } else if (peer?.peers?.sender?.getSenders()[0]?.track?.kind == "video") {
       (
-        (peers.sender as RTCPeerConnection).getSenders()[0]
+        (peer?.peers.sender as RTCPeerConnection).getSenders()[0]
           .track as MediaStreamTrack
-      ).enabled = !peers?.sender?.getSenders()[0]?.track?.enabled;
+      ).enabled = !peer?.peers?.sender?.getSenders()[0]?.track?.enabled;
     }
 
     setToggleCalls({ ...toggleCalls, video: !toggleCalls?.video });
   }
 
   function handleonAudioToggle() {
-    if (peers?.sender?.getSenders()[1]?.track?.kind == "audio") {
-      (peers.sender.getSenders()[1].track as MediaStreamTrack).enabled =
-        !peers?.sender?.getSenders()[1]?.track?.enabled;
-    } else if (peers?.sender?.getSenders()[0]?.track?.kind == "audio") {
+    if (peer?.peers?.sender?.getSenders()[1]?.track?.kind == "audio") {
+      (peer?.peers.sender.getSenders()[1].track as MediaStreamTrack).enabled =
+        !peer?.peers?.sender?.getSenders()[1]?.track?.enabled;
+    } else if (peer?.peers?.sender?.getSenders()[0]?.track?.kind == "audio") {
       (
-        (peers.sender as RTCPeerConnection).getSenders()[0]
+        (peer?.peers.sender as RTCPeerConnection).getSenders()[0]
           .track as MediaStreamTrack
-      ).enabled = !peers?.sender?.getSenders()[0]?.track?.enabled;
+      ).enabled = !peer?.peers?.sender?.getSenders()[0]?.track?.enabled;
     }
 
     setToggleCalls({ ...toggleCalls, audio: !toggleCalls?.audio });
@@ -194,8 +138,8 @@ function CallAreaTemplate() {
   }
 
   function handleonEndCall() {
-    peers?.sender?.close();
-    peers?.receiver?.close();
+    peer?.peers?.sender?.close();
+    peer?.peers?.receiver?.close();
 
     socket.send(
       JSON.stringify({
@@ -204,8 +148,10 @@ function CallAreaTemplate() {
       })
     );
 
-    peers.sender = new RTCPeerConnection();
-    peers.receiver = new RTCPeerConnection();
+    peer?.setPeers({
+      sender: new RTCPeerConnection(),
+      receiver: new RTCPeerConnection(),
+    });
 
     dispatch(callRejected());
   }
@@ -288,17 +234,16 @@ const VideoCallTemplate = memo(function VideoCallTemplate({
   user_video,
   isVideoEnabled,
 }: iVideoCallTemplate) {
-  const [peerState, setPeerState] = useState(peers);
+  const peer = usePeersProvider();
+  const track1 = peer?.peers?.receiver?.getTransceivers()[0]?.receiver?.track;
+  const track2 = peer?.peers?.receiver?.getTransceivers()[1]?.receiver?.track;
   useEffect(() => {
-    if (peers?.receiver) {
-      peers.receiver.ontrack = (event) => {
+    if (peer?.peers?.receiver) {
+      peer.peers.receiver.ontrack = (event) => {
         if (friend_video?.current) {
           friend_video.current.srcObject = new MediaStream([event.track]);
         }
       };
-
-      const track1 = peers?.receiver?.getTransceivers()[0]?.receiver?.track;
-      const track2 = peers?.receiver?.getTransceivers()[1]?.receiver?.track;
 
       if (friend_video?.current && friend_mic?.current && track1 && track2) {
         console.log("Got track :", track1, track2);
@@ -306,17 +251,7 @@ const VideoCallTemplate = memo(function VideoCallTemplate({
         friend_video.current.srcObject = new MediaStream([track2]);
       }
     }
-    console.log(
-      "from state: ",
-      peerState?.receiver?.getTransceivers()[1]?.receiver?.track,
-      peerState?.receiver?.getTransceivers()[0]?.receiver?.track
-    );
-  }, [
-    peers?.receiver?.getTransceivers()[1]?.receiver?.track,
-    peers?.receiver?.getTransceivers()[0]?.receiver?.track,
-    peerState?.receiver?.getTransceivers()[1]?.receiver?.track,
-    peerState?.receiver?.getTransceivers()[0]?.receiver?.track,
-  ]);
+  }, [track1, track2]);
 
   return (
     <>

@@ -12,14 +12,15 @@ import verifyCall from "@/actions/call/verify";
 import getUser from "@/actions/user/user";
 import { iDispatch } from "@/types/dispatch";
 import { socket } from "@/utils/socket";
-import { initializePeers, peers, startStreaming } from "@/utils/webRTC";
 import setCallAnswered from "@/actions/call/answered";
 import { iState } from "@/types/state";
 import { setUserOnline } from "@/redux/features/chat";
+import { iPeerContext } from "@/context/peers";
 
 export async function listenMessages(
   dispatch: iDispatch,
   state:iState,
+  peer:iPeerContext,
   data: { event: string; payload: any }
 ) {
   if (data?.event) {
@@ -156,9 +157,8 @@ export async function listenMessages(
       case "call-answer-received":
         if (data?.payload?.id) {
           if (data?.payload?.accepted) {
-            initializePeers()
             dispatch(callAnswered());
-            startStreaming(data?.payload?.type);
+            peer?.startStreaming(data?.payload?.type);
             await setCallAnswered((state?.call as iCallSlice)?.id)
           } else {
             dispatch(callRejected());
@@ -169,16 +169,16 @@ export async function listenMessages(
       // Call offer from sender
       case "call-offer-received":
         if (data?.payload?.id && data?.payload?.type && data?.payload?.offer) {
-          await peers?.receiver?.setRemoteDescription(data?.payload?.offer);
-          let answer = await peers?.receiver?.createAnswer();
-          await peers?.receiver?.setLocalDescription(answer);
+          await peer?.peers?.receiver?.setRemoteDescription(data?.payload?.offer);
+          let answer = await peer?.peers?.receiver?.createAnswer();
+          await peer?.peers?.receiver?.setLocalDescription(answer);
           socket.send(
             JSON.stringify({
               event: "call-offer-answer",
               payload: {
                 id: data?.payload?.id,
                 type: (state?.call as iCallSlice)?.type,
-                answer: peers?.receiver?.localDescription,
+                answer: peer?.peers?.receiver?.localDescription,
               },
             })
           );
@@ -188,7 +188,7 @@ export async function listenMessages(
       // sender part: listening to senders call offer answer sent earlier
       case "call-offer-answer-recieved":
         if (data?.payload?.id && data?.payload?.type && data?.payload?.answer) {
-          await peers?.sender?.setRemoteDescription(data?.payload?.answer);
+          await peer?.peers?.sender?.setRemoteDescription(data?.payload?.answer);
         }
 
         break;
@@ -197,10 +197,10 @@ export async function listenMessages(
       case "call-iceCandidate-recieved":
         if (data?.payload?.iceCandidate && data?.payload?.from) {
           if (data?.payload?.from == "receiver") {
-            await peers?.sender?.addIceCandidate(data?.payload?.iceCandidate);
+            await peer?.peers?.sender?.addIceCandidate(data?.payload?.iceCandidate);
           }
           if (data?.payload?.from == "sender") {
-            await peers?.receiver?.addIceCandidate(data?.payload?.iceCandidate);
+            await peer?.peers?.receiver?.addIceCandidate(data?.payload?.iceCandidate);
           }
         }
         break;
@@ -209,10 +209,12 @@ export async function listenMessages(
       case "call-ended":
         if (data?.payload?.id) {
           dispatch(callRejected());
-          peers?.sender?.close();
-          peers?.receiver?.close();
-          peers.sender = new RTCPeerConnection();
-          peers.receiver = new RTCPeerConnection();
+          peer?.peers?.sender?.close();
+          peer?.peers?.receiver?.close();
+          peer?.setPeers({
+            sender:new RTCPeerConnection(),
+            receiver:new RTCPeerConnection()
+          })
         }
         break;
       //

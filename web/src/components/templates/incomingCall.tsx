@@ -11,13 +11,14 @@ import {
   setCall,
 } from "@/redux/features/call";
 import { socket } from "@/utils/socket";
-import { initializePeers, startStreaming } from "@/utils/webRTC";
 import { toaster } from "../ui/toaster";
-// import { initializeWebRTCpeers, startStreaming } from "@/redux/features/webRTC";
+import { usePeersProvider } from "@/hooks/peers";
 
 function IncomingCallTemplate() {
   const call = useAppSelector((state) => state?.call) as iCallSlice;
+  const peer = usePeersProvider();
   const dispatch = useAppDispatch();
+  
   useEffect(() => {
     const audio = new Audio("/ring.wav");
     audio.loop = true;
@@ -48,7 +49,7 @@ function IncomingCallTemplate() {
       .getUserMedia({ video: true, audio: true })
       .then((stream) => {
         dispatch(callAnswered());
-        initializePeers();
+        peer?.startStreaming(call?.type);
         socket.send(
           JSON.stringify({
             event: "call-answer",
@@ -60,7 +61,6 @@ function IncomingCallTemplate() {
             },
           })
         );
-        startStreaming(call?.type);
       })
       .catch((err) => {
         console.log("Error on getting user media", err);

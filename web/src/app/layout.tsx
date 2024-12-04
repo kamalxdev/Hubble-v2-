@@ -5,6 +5,7 @@ import "./globals.css";
 import { startRedis } from "@/utils/redis";
 import { Toaster } from "@/components/ui/toaster";
 import StoreProvider from "./StoreProvider";
+import { PeerContextProvider } from "@/context/peers";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -34,10 +35,12 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <StoreProvider>
-          <Provider>
-            <Toaster />
-            {children}
-          </Provider>
+          <PeerContextProvider>
+            <Provider>
+              <Toaster />
+              {children}
+            </Provider>
+          </PeerContextProvider>
         </StoreProvider>
       </body>
     </html>
