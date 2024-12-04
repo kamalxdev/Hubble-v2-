@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useEffect, useRef } from "react";
+import { memo, use, useEffect, useRef } from "react";
 import { Avatar } from "../ui/avatar";
 import { IconButton } from "@chakra-ui/react";
 import { BsCheck, BsCheckAll } from "react-icons/bs";
@@ -11,12 +11,15 @@ import { iMessages } from "@/types/chats";
 import SendMessageButton from "../ui/sendMessagebutton";
 import { socket } from "@/utils/socket";
 import { setCall } from "@/redux/features/call";
-import newCall from "@/actions/call/new";
-import { toaster } from "../ui/toaster";
+import { IoMdArrowRoundBack } from "react-icons/io";
+import { setCurrentChatAreaUserID, setUserOnline, setUserTyping } from "@/redux/features/chat";
 
 function ChatAreaTemplate() {
   const dispatch = useAppDispatch();
   const friendID = useAppSelector((state) => state.chat.currentChatAreaUserID);
+  const isUserOnline = useAppSelector((state) => state?.chat?.isUserOnline);
+  const isUserTyping = useAppSelector((state) => state?.chat?.isUserTyping);
+
   const friend = useAppSelector((state) =>
     state?.friends?.filter((f) => f?.detail?.id == friendID)
   )[0];
@@ -39,12 +42,12 @@ function ChatAreaTemplate() {
     {
       name: "Voice Call",
       icon: <IoCallOutline />,
-      onclick: ()=>makeCall("voice"),
+      onclick: () => makeCall("voice"),
     },
     {
       name: "Video Call",
       icon: <IoVideocamOutline />,
-      onclick: ()=>makeCall("video"),
+      onclick: () => makeCall("video"),
     },
     {
       name: "Options",
@@ -74,6 +77,21 @@ function ChatAreaTemplate() {
     }
   }, [chats]);
 
+  useEffect(()=>{
+    if(friendID){
+      socket.send(
+        JSON.stringify({
+          event: "user-online-request",
+          payload: { id: friendID },
+        })
+      );
+    }
+    return ()=>{
+      dispatch(setUserOnline(false));
+      dispatch(setUserTyping(false))
+    }
+  },[friendID])
+
   if (!friendID) {
     return (
       <div className="flex justify-center items-center opacity-25 border border-slate-800">
@@ -83,17 +101,36 @@ function ChatAreaTemplate() {
   }
 
   return (
-    <div className="relative h-screen grid grid-rows-[8%_1fr_auto] border border-slate-800">
+    <div className="relative w-screen lg:w-full h-dvh grid grid-rows-[auto_1fr_auto] border border-slate-800">
       <div className="border-b border-slate-800 flex items-center justify-between px-7 py-3">
         <span className="flex items-center gap-3">
+          <button
+            onClick={() => dispatch(setCurrentChatAreaUserID(""))}
+            className="lg:hidden"
+          >
+            <IoMdArrowRoundBack />
+          </button>
           <Avatar
             name={friend?.detail?.name || "N A"}
             loading="eager"
             src={friend?.detail?.avatar || undefined}
           />
-          <h1 className="text-2xl font-semibold opacity-80 ">
-            {friend?.detail?.name || "N A"}
-          </h1>
+          <span className="flex flex-col transition-all">
+            <h1 className="text-xl font-semibold flex items-center gap-2 transition-all">
+              {friend?.detail?.name || "N A"}
+              {isUserOnline && (
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                </span>
+              )}
+            </h1>
+            {isUserTyping && (
+              <p className="text-green-600 font-semibold text-xs transition-all">
+                typing...
+              </p>
+            )}
+          </span>
         </span>
         <span>
           {userOptions?.map(({ name, icon, onclick }) => (

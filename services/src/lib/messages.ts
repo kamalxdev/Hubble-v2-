@@ -1,4 +1,4 @@
-import { findOnlineUsers, setOnlineUsers } from "./onlineUser";
+import { findOnlineUsers, iOnlineUser, setOnlineUsers } from "./onlineUser";
 import { iwebsocket } from "../types";
 import { sendMessageToAll, sendMessageToSpecific } from "./chats";
 
@@ -26,12 +26,10 @@ export async function message(
           data?.payload?.id &&
           (await findOnlineUsers("db", data?.payload?.id))
         ) {
-          ws.send(
-            JSON.stringify({
-              event: "user-online-response",
-              payload: { id: data?.payload?.id },
-            })
-          );
+          sendMessageToSpecific({
+            event: "user-online",
+            payload: { id: data?.payload?.id },
+          },(message_recieved_from as iOnlineUser)?.db_id)
         }
         break;
 

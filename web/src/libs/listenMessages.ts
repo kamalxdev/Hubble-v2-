@@ -5,66 +5,51 @@ import {
   setCall,
 } from "@/redux/features/call";
 import {
-  iFriendSlice,
   updateChats,
   updateFriends,
 } from "@/redux/features/friends";
 import verifyCall from "@/actions/call/verify";
 import getUser from "@/actions/user/user";
 import { iDispatch } from "@/types/dispatch";
-import { iFriend } from "@/types/user";
 import { socket } from "@/utils/socket";
 import { initializePeers, peers, startStreaming } from "@/utils/webRTC";
 import setCallAnswered from "@/actions/call/answered";
+import { iState } from "@/types/state";
+import { setUserOnline } from "@/redux/features/chat";
 
 export async function listenMessages(
   dispatch: iDispatch,
-  call: iCallSlice | {},
-  allFriends: iFriendSlice[],
+  state:iState,
   data: { event: string; payload: any }
 ) {
   if (data?.event) {
     switch (data?.event) {
       // listening and handling user offline
 
-      //   case "user-offline":
-      //     if (
-      //       data?.payload?.id &&
-      //       openChat.currentUniqueUserId == data?.payload?.id
-      //     ) {
-      //       openChat.setCurrentUserOnline(false);
-      //     }
-      //     break;
+        case "user-offline":
+          if (
+            data?.payload?.id &&
+            state?.chat?.currentChatAreaUserID == data?.payload?.id
+          ) {
+            dispatch(setUserOnline(false))
+          }
+          break;
 
       // listening to user online
 
-      //   case "user-online":
-      //     if (
-      //       data?.payload?.id &&
-      //       openChat.currentUniqueUserId == data?.payload?.id
-      //     ) {
-      //       openChat.setCurrentUserOnline(true);
-      //     }
-      //     break;
+        case "user-online":
+          if (
+            data?.payload?.id &&
+            state?.chat?.currentChatAreaUserID == data?.payload?.id
+          ) {
+            dispatch(setUserOnline(true))
+          }
+          break;
 
-      // listening to requested user online response
-
-      //   case "user-online-response":
-      //     if (
-      //       data?.payload?.id &&
-      //       openChat.currentUniqueUserId == data?.payload?.id
-      //     ) {
-      //       console.log("user online resopnse");
-
-      //       openChat.setCurrentUserOnline(true);
-      //     }
-      //     break;
-
-      //
       // listen to user message
       case "message-recieved":
         if (data?.payload?.from && data?.payload?.text) {
-          let isfriend = allFriends.filter(
+          let isfriend = state?.friends?.filter(
             (f) => f?.detail?.id == data?.payload?.from
           );
           if (isfriend[0]) {
@@ -174,7 +159,7 @@ export async function listenMessages(
             initializePeers()
             dispatch(callAnswered());
             startStreaming(data?.payload?.type);
-            await setCallAnswered((call as iCallSlice)?.id)
+            await setCallAnswered((state?.call as iCallSlice)?.id)
           } else {
             dispatch(callRejected());
           }
@@ -192,7 +177,7 @@ export async function listenMessages(
               event: "call-offer-answer",
               payload: {
                 id: data?.payload?.id,
-                type: (call as iCallSlice)?.type,
+                type: (state?.call as iCallSlice)?.type,
                 answer: peers?.receiver?.localDescription,
               },
             })

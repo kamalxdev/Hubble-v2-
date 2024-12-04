@@ -80,7 +80,7 @@ export default function Login() {
     })
   }
   return (
-    <section className="bg-black w-screen h-dvh text-white flex justify-center items-center    ">
+    <section className="bg-black w-screen h-dvh text-white flex justify-center items-center">
       <Stack gap="4" align="flex-start" className="md:w-4/12 p-10">
         {OTPsent ? (
           <>

@@ -55,11 +55,10 @@ function SidebarTemplate() {
   ];
   
   // listening to socket messages 
-  const allFriends = useAppSelector((state)=>state.friends)
-  const call= useAppSelector((state)=>state?.call)
+  const state=useAppSelector((state)=>state)
   socket.onmessage = (message) => {
     try {
-      listenMessages(dispatch,call,allFriends,JSON.parse(message.data));
+      listenMessages(dispatch,state,JSON.parse(message.data));
       console.log("message: ", message.data);
     } catch (error) {
       console.log("error on listening events");

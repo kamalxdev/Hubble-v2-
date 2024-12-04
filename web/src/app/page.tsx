@@ -12,6 +12,9 @@ import { iCallSlice } from "@/redux/features/call";
 export default function Home() {
   const toggle = useAppSelector((state) => state?.toggle);
   const call = useAppSelector((state) => state?.call);
+  const currentChatUserID = useAppSelector(
+    (state) => state?.chat?.currentChatAreaUserID
+  );
 
   return (
     <>
@@ -23,11 +26,15 @@ export default function Home() {
           </section>
         )}
       <section className="flex flex-nowrap bg-slate-950">
-        <section className="relative border border-slate-800">
+        <section
+          className={
+            `relative border border-slate-800 lg:block ${currentChatUserID && "hidden"}`
+          }
+        >
           <SidebarTemplate />
         </section>
-        <section className="realtive w-full h-dvh text-white grid grid-cols-[35%_65%] xl:grid-cols-[30%_70%]">
-          <div className="relative h-dvh grid grid-rows-[8%_92%] border border-slate-800 pb-4">
+        <section className="realtive w-full h-dvh text-white lg:grid lg:grid-cols-[25%_1fr]">
+          <div className="relative h-dvh grid grid-rows-[auto_1fr] border border-slate-800 pb-4">
             <h1 className="text-2xl font-semibold opacity-80 border-b border-slate-800 p-4 capitalize">
               {toggle}
             </h1>
@@ -45,7 +52,7 @@ export default function Home() {
           (call as iCallSlice)?.isAnswered ? (
             <CallAreaTemplate />
           ) : (
-            <ChatAreaTemplate />
+            currentChatUserID && <ChatAreaTemplate />
           )}
         </section>
       </section>
