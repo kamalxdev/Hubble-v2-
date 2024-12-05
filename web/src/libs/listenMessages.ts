@@ -21,7 +21,7 @@ export async function listenMessages(
   dispatch: iDispatch,
   state:iState,
   peer:iPeerContext,
-  data: { event: string; payload: any }
+  data: { event: string; payload:Record<string,never> }
 ) {
   if (data?.event) {
     switch (data?.event) {
@@ -50,7 +50,7 @@ export async function listenMessages(
       // listen to user message
       case "message-recieved":
         if (data?.payload?.from && data?.payload?.text) {
-          let isfriend = state?.friends?.filter(
+          const isfriend = state?.friends?.filter(
             (f) => f?.detail?.id == data?.payload?.from
           );
           if (isfriend[0]) {
@@ -170,7 +170,7 @@ export async function listenMessages(
       case "call-offer-received":
         if (data?.payload?.id && data?.payload?.type && data?.payload?.offer) {
           await peer?.peers?.receiver?.setRemoteDescription(data?.payload?.offer);
-          let answer = await peer?.peers?.receiver?.createAnswer();
+          const answer = await peer?.peers?.receiver?.createAnswer();
           await peer?.peers?.receiver?.setLocalDescription(answer);
           socket.send(
             JSON.stringify({

@@ -35,11 +35,11 @@ export function ColorModeIcon() {
   return colorMode === "light" ? <LuSun /> : <LuMoon />
 }
 
-interface ColorModeButtonProps extends Omit<IconButtonProps, "aria-label"> {}
+// interface ColorModeButtonProps extends Omit<IconButtonProps, "aria-label"> {}
 
 export const ColorModeButton = forwardRef<
   HTMLButtonElement,
-  ColorModeButtonProps
+  Omit<IconButtonProps, "aria-label">
 >(function ColorModeButton(props, ref) {
   const { toggleColorMode } = useColorMode()
   return (

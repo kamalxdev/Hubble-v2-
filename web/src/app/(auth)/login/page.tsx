@@ -6,13 +6,16 @@ import { useState } from "react";
 import { PasswordInput } from "@/components/ui/password-input";
 import Link from "next/link";
 import { PinInput } from "@/components/ui/pin-input";
-import { validateFormData, validateOTPandLoginUser } from "@/actions/auth/login";
+import {
+  validateFormData,
+  validateOTPandLoginUser,
+} from "@/actions/auth/login";
 import {
   ProgressCircleRing,
   ProgressCircleRoot,
 } from "@/components/ui/progress-circle";
 import sendEmailWithOTP from "@/utils/sendOTP";
-import { toaster } from "@/components/ui/toaster"
+import { toaster } from "@/components/ui/toaster";
 import { useRouter } from "next/navigation";
 
 type iFormError = {
@@ -23,22 +26,22 @@ type iFormError = {
 };
 
 export default function Login() {
-  const router = useRouter()
+  const router = useRouter();
 
   const [formData, setFormData] = useState({
     email: "",
-    OTP:0,
+    OTP: 0,
     password: "",
   });
   const [loading, setLoading] = useState(false);
   const [OTPsent, setOTPsent] = useState(false);
   const [formError, setFormError] = useState<iFormError>({});
   async function handleLoginBtn() {
-    if(!formData?.email || !formData?.password){
+    if (!formData?.email || !formData?.password) {
       return toaster.create({
         title: "Please fill all the fields to continue",
-        type: 'error',
-      })
+        type: "error",
+      });
     }
     setLoading(true);
     const validateData = await validateFormData(formData);
@@ -51,33 +54,33 @@ export default function Login() {
       setLoading(false);
       return toaster.create({
         title: emailSent?.error,
-        type: 'error',
-      })
+        type: "error",
+      });
     }
     setLoading(false);
     setOTPsent(true);
 
     return toaster.create({
       title: "OTP sent successfully",
-      type: 'success',
-    })
+      type: "success",
+    });
   }
-  async function handleSubmitBtn(){
+  async function handleSubmitBtn() {
     setLoading(true);
-    const loginUser=await validateOTPandLoginUser(formData);
-    if(!loginUser?.success){
-    setLoading(false);
+    const loginUser = await validateOTPandLoginUser(formData);
+    if (!loginUser?.success) {
+      setLoading(false);
       return toaster.create({
         title: loginUser?.error,
-        type: 'error',
-      })
+        type: "error",
+      });
     }
     setLoading(true);
-    router.push('/')
+    router.push("/");
     return toaster.create({
       title: "User logged in successfully",
-      type: 'success',
-    })
+      type: "success",
+    });
   }
   return (
     <section className="bg-black w-screen h-dvh text-white flex justify-center items-center">
@@ -93,7 +96,14 @@ export default function Login() {
                 </i>
               </p>
             </span>
-            <PinInput className="flex justify-center items-center w-full" otp autoFocus onValueChange={(e)=>setFormData({...formData,OTP:parseInt(e.valueAsString)})}/>
+            <PinInput
+              className="flex justify-center items-center w-full"
+              otp
+              autoFocus
+              onValueChange={(e) =>
+                setFormData({ ...formData, OTP: parseInt(e.valueAsString) })
+              }
+            />
             {loading ? (
               <ProgressCircleRoot
                 value={null}
@@ -102,20 +112,22 @@ export default function Login() {
               >
                 <ProgressCircleRing cap="round" />
               </ProgressCircleRoot>
-            ) :<Button
-              type="button"
-              onClick={handleSubmitBtn}
-              className="bg-white/90 text-black w-full hover:bg-white rounded-md"
-            >
-              Submit
-            </Button>}
+            ) : (
+              <Button
+                type="button"
+                onClick={handleSubmitBtn}
+                className="bg-white/90 text-black w-full hover:bg-white rounded-md"
+              >
+                Submit
+              </Button>
+            )}
           </>
         ) : (
           <>
             <span className="flex flex-col w-full justify-center items-center">
               <h1 className="text-2xl font-bold">Log in to your account</h1>
               <p className="text-white/50 text-nowrap text-center">
-              Don't have an account?{" "}
+                Don&apos;t have an account?{" "}
                 <Link
                   href="/register"
                   className="border-b border-white font-semibold text-white"

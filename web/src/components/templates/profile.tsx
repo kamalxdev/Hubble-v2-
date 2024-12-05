@@ -1,18 +1,13 @@
 "use client";
 
-import { memo, useEffect, useState } from "react";
+import { memo, useState } from "react";
 import { Avatar } from "../ui/avatar";
 import { Button } from "@/components/ui/button";
 import { FileUploadRoot, FileUploadTrigger } from "@/components/ui/file-button";
 import { HiUpload } from "react-icons/hi";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
-import {
-  Box,
-  Center,
-  FileUploadFileAcceptDetails,
-  Spinner,
-} from "@chakra-ui/react";
+import { FileUploadFileAcceptDetails } from "@chakra-ui/react";
 
 import { FiEdit2 } from "react-icons/fi";
 import { MdOutlineDone } from "react-icons/md";
@@ -29,10 +24,10 @@ function ProfileTemplate() {
   const dispatch = useAppDispatch();
 
   function handleOnFileAccept(event: FileUploadFileAcceptDetails) {
-    let avatarfile=event?.files[0];
-    (avatarfile?.type == "image/png" ||
-      avatarfile?.type == "image/jpeg") &&
+    const avatarfile = event?.files[0];
+    if (avatarfile?.type == "image/png" || avatarfile?.type == "image/jpeg") {
       setUploadedAvatar(avatarfile);
+    }
   }
 
   const editProfileDetails = [
@@ -52,28 +47,31 @@ function ProfileTemplate() {
   const user = useAppSelector((state) => state.user);
   // useEffect(()=>{console.log("avatarUploadLoading: ",avatarUploadLoading);
   // },[avatarUploadLoading])
-  async function handleChangeAvatar() {    
-    if(!uploadAvatar) return toaster.create({
-      title: "Please choose a file",
-      type: "error",
-    });
+  async function handleChangeAvatar() {
+    if (!uploadAvatar)
+      return toaster.create({
+        title: "Please choose a file",
+        type: "error",
+      });
 
     setAvatarUploadLoading(true);
 
-    let formData= new FormData();
+    const formData = new FormData();
     formData.set("avatar", uploadedAvatar as File);
 
     const avatar: { success: boolean; error?: string; avatar?: string } =
       await uploadAvatar(formData);
 
     if (!avatar?.success) {
-       setAvatarUploadLoading(false);
+      setAvatarUploadLoading(false);
       return toaster.create({
         title: avatar?.error,
         type: "error",
       });
     }
-    avatar?.avatar && dispatch(setUser({ ...user, avatar: avatar?.avatar }));
+    if (avatar?.avatar) {
+      dispatch(setUser({ ...user, avatar: avatar?.avatar }));
+    }
 
     setAvatarUploadLoading(false);
     return toaster.create({
@@ -88,12 +86,14 @@ function ProfileTemplate() {
         <Avatar
           name={useAppSelector((state) => state.user?.name)}
           loading="eager"
-          src={(uploadedAvatar && URL.createObjectURL(uploadedAvatar)) || user?.avatar || undefined}
+          src={
+            (uploadedAvatar && URL.createObjectURL(uploadedAvatar)) ||
+            user?.avatar ||
+            undefined
+          }
           className="flex justify-center items-center border border-black rounded-full w-36 h-36 overflow-hidden"
         />
-        <form
-          className="flex flex-col items-center justify-center gap-3"
-        >
+        <form className="flex flex-col items-center justify-center gap-3">
           <FileUploadRoot
             accept={["image/png", "image/jpeg"]}
             allowDrop
@@ -154,8 +154,8 @@ const ProfileDetails = memo(function ProfileDetails({
   const user = useAppSelector((state) => state.user);
   const dispatch = useAppDispatch();
   async function handleSubmit() {
-    if(toggleEdit){
-      if(value==defaultValue || !value) return setToggleEdit(false)
+    if (toggleEdit) {
+      if (value == defaultValue || !value) return setToggleEdit(false);
       setLoading(true);
       const update = await updateUser({ [title.toLowerCase()]: value });
       if (!update?.success) {
@@ -166,14 +166,14 @@ const ProfileDetails = memo(function ProfileDetails({
         });
       }
       setLoading(false);
-      setToggleEdit(false)
-      dispatch(setUser({...user,[title.toLowerCase()]: value }))
+      setToggleEdit(false);
+      dispatch(setUser({ ...user, [title.toLowerCase()]: value }));
       return toaster.create({
         title: "Profile updated successfully",
         type: "success",
       });
     } else {
-      setToggleEdit(true)
+      setToggleEdit(true);
     }
   }
 

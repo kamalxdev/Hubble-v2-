@@ -9,6 +9,6 @@ export interface iState {
     friends: iFriendSlice[];
     chat: ichatAreaSlice;
     toggle: "messages" | "calls";
-    call: {} | iCallSlice;
+    call: null | iCallSlice;
     callHistory: icallHistorySlice[];
 }

@@ -9,8 +9,5 @@
   },
   "author": "",
   "license": "ISC",
-  "description": "",
-  "dependencies": {
-    "zod": "^3.23.8"
-  }
+  "description": "A chatting and calling website"
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, use, useEffect, useRef } from "react";
+import { memo, useEffect, useRef } from "react";
 import { Avatar } from "../ui/avatar";
 import { IconButton } from "@chakra-ui/react";
 import { BsCheck, BsCheckAll } from "react-icons/bs";

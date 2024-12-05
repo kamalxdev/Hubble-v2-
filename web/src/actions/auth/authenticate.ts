@@ -35,7 +35,9 @@ export default async function authenticate() {
       return { success: false, error: "No user found" };
     }
     return { success: true, user: isUser };
-  } catch (error) {
+  } catch (err) {
+    console.log("Error on authenticationg user", err);
+    
     return { success: false, error: "Invalid Authorization token" };
   }
 }

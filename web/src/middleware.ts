@@ -4,7 +4,7 @@ import authenticate from "./actions/auth/authenticate";
 
 export async function middleware(request: NextRequest) {
   const url = request.nextUrl.pathname;
-  let authCookie = request.cookies.get("auth");
+  const authCookie = request.cookies.get("auth");
   if (url.startsWith("/login") || url.startsWith("/register")) {
     if (authCookie) {
       const authenticateUserTOKEN = await authenticate();

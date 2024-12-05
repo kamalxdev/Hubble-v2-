@@ -8,7 +8,6 @@ import {
   callAnswered,
   callRejected,
   iCallSlice,
-  setCall,
 } from "@/redux/features/call";
 import { socket } from "@/utils/socket";
 import { toaster } from "../ui/toaster";
@@ -47,7 +46,7 @@ function IncomingCallTemplate() {
   function handleAcceptCall() {
     navigator.mediaDevices
       .getUserMedia({ video: true, audio: true })
-      .then((stream) => {
+      .then(() => {
         dispatch(callAnswered());
         peer?.startStreaming(call?.type);
         socket.send(

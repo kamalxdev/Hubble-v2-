@@ -4,7 +4,7 @@ import { generateOTP } from "@/libs/generateOTP";
 import { transporter } from "./nodemailer";
 import { client, startRedis } from "./redis";
 
-async function emailOTP(to: string, otp: any) {
+async function emailOTP(to: string, otp: string) {
   try {
     const info = await transporter.sendMail({
       from: `"Hubble" <${process.env.EMAIL_ID}>`,

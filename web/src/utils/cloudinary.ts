@@ -47,7 +47,7 @@ export async function upload(formData: FormData) {
 }
 
 export async function deleteFile(url: string) {
-  let trimmedURL = url.slice(
+  const trimmedURL = url.slice(
     url.indexOf("avatar"),
     url.indexOf("?_a=BAMAH2a40")
   );

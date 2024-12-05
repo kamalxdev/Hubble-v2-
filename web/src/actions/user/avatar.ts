@@ -21,8 +21,9 @@ export default async function uploadAvatar(avatar: FormData) {
     }
 
     // deleting the previous avatar, if any
-    authenticateReq?.user?.avatar &&
-      (await deleteFile(authenticateReq?.user?.avatar));
+    if(authenticateReq?.user?.avatar){
+      await deleteFile(authenticateReq?.user?.avatar)
+    }
 
     const avatar_optimize_url = await getFile(upload_avatar?.public_id);
     const updated_avatar_on_DB = await prisma.user.update({

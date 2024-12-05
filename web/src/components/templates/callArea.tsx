@@ -24,6 +24,8 @@ function CallAreaTemplate() {
   const friend_mic = useRef<HTMLAudioElement>(null);
 
   const [calling, setCalling] = useState(true);
+  console.log("Calling", calling);
+
   const [toggleCalls, setToggleCalls] = useState({
     video: true,
     audio: true,
@@ -119,7 +121,9 @@ function CallAreaTemplate() {
 
   function handleonPIPToggle() {
     if (toggleCalls?.pip) {
-      document?.pictureInPictureElement && document?.exitPictureInPicture();
+      if (document?.pictureInPictureElement) {
+        document?.exitPictureInPicture();
+      }
     } else {
       friend_video?.current?.requestPictureInPicture();
     }
@@ -129,7 +133,9 @@ function CallAreaTemplate() {
 
   function handleonFullScreenToggle() {
     if (toggleCalls?.fullScreen) {
-      document?.fullscreenElement && document?.exitFullscreen();
+      if(document?.fullscreenElement){
+        document?.exitFullscreen()
+      }
     } else {
       friend_video?.current?.requestFullscreen({ navigationUI: "hide" });
     }

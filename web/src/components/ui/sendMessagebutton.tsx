@@ -13,14 +13,14 @@ import { BsSend } from "react-icons/bs";
 function SendMessageButton() {
   const userID = useAppSelector((state) => state.user.id);
   const dispatch = useAppDispatch();
-  const friendID = useAppSelector((state) => state.chat.currentChatAreaUserID);
+  const friendID = useAppSelector((state) => state.chat.currentChatAreaUserID) as string;
   const StyledAutoResize = chakra(AutoResize);
   const textareaREF = useRef<HTMLTextAreaElement>(null);
 
   async function handleSendMessage() {
     if (!textareaREF.current?.value) return;
-    let date = new Date();
-    let text = textareaREF.current?.value;
+    const date = new Date();
+    const text = textareaREF.current?.value;
     textareaREF.current.value = "";
     socket.send(
       JSON.stringify({

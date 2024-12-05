@@ -9,7 +9,7 @@ import { IoCallOutline, IoSettingsOutline } from "react-icons/io5";
 import Drawer from "./drawer";
 import SearchbarTemplate from "./searchbar";
 import ProfileTemplate from "./profile";
-import { useAppDispatch, useAppSelector, useAppStore } from "@/redux/hooks";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import authenticate from "@/actions/auth/authenticate";
 import { iUser, setUser } from "@/redux/features/user";
 import SettingTemplate from "./setting";
@@ -22,49 +22,51 @@ function SidebarTemplate() {
   const dispatch = useAppDispatch();
   const peer = usePeersProvider();
 
-  let user = useAppSelector((state) => state.user);
-  const toggle= useAppSelector((state)=>state.toggle)
+  const user = useAppSelector((state) => state.user);
+  const toggle = useAppSelector((state) => state.toggle);
+
   useEffect(() => {
     authenticate().then((data: { success: boolean; user?: iUser }) => {
       dispatch(setUser(data?.user as iUser));
     });
-    console.log("server: ", process.env.NEXT_PUBLIC_SERVER_URL as string);
   }, []);
+
   useEffect(() => {
-    user?.id &&
-      socket.OPEN &&
+    if (user?.id && socket.OPEN) {
       socket.send(
         JSON.stringify({
           event: "user-connected",
           payload: { id: user?.id },
         })
       );
+    }
   }, [user]);
+
   const menu = [
     {
       label: "Messages",
       icon: <PiChatText />,
       onclick: () => {
-        dispatch(sideBarToggle("messages"))
+        dispatch(sideBarToggle("messages"));
       },
     },
     {
       label: "Calls",
       icon: <IoCallOutline />,
       onclick: () => {
-        dispatch(sideBarToggle("calls"))
+        dispatch(sideBarToggle("calls"));
       },
     },
   ];
-  
-  // listening to socket messages 
-  const state=useAppSelector((state)=>state)
+
+  // listening to socket messages
+  const state = useAppSelector((state) => state);
   socket.onmessage = (message) => {
     try {
-      listenMessages(dispatch,state,peer,JSON.parse(message.data));
+      listenMessages(dispatch, state, peer, JSON.parse(message.data));
       console.log("message: ", message.data);
     } catch (error) {
-      console.log("error on listening events");
+      console.log("error on listening events",error);
     }
   };
   return (
@@ -76,7 +78,7 @@ function SidebarTemplate() {
             <Avatar
               name={useAppSelector((state) => state.user?.name)}
               loading="eager"
-              src={user?.avatar|| undefined}
+              src={user?.avatar || undefined}
             />
           }
         >
@@ -90,7 +92,11 @@ function SidebarTemplate() {
             <IconButton
               aria-label={label}
               key={label}
-              className={`transition-all ${toggle == label.toLowerCase()?  "bg-green-600/80" :"hover:bg-slate-900"}`}
+              className={`transition-all ${
+                toggle == label.toLowerCase()
+                  ? "bg-green-600/80"
+                  : "hover:bg-slate-900"
+              }`}
               onClick={onclick}
             >
               {icon}

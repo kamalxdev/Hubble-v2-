@@ -2,8 +2,9 @@
 
 import { prisma } from "@/utils/prisma";
 import authenticate from "../auth/authenticate";
+import { Prisma } from "@prisma/client/edge";
 
-export default async function updateUser(update: {}) {
+export default async function updateUser(update: Prisma.UserUpdateInput) {
   try {
     if (!update) return { success: false };
 

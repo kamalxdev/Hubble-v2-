@@ -12,17 +12,17 @@ export const friendSlice = createSlice({
   initialState: [] as iFriendSlice[],
   reducers: {
     updateFriends: (state, action: PayloadAction<iFriendSlice>) => {
-      let userPayload=action?.payload
-      let isFriend = state.findIndex(
+      const userPayload = action?.payload;
+      const isFriend = state.findIndex(
         (f) => f?.detail?.id == userPayload.detail?.id
       );
-      const friendar=state[isFriend];
+      const friendar = state[isFriend];
 
-      if (isFriend>=0) {        
+      if (isFriend >= 0) {
         state.splice(isFriend, 1);
 
-        if(action.payload?.messages.length<1){
-          userPayload.messages=friendar?.messages
+        if (action.payload?.messages.length < 1) {
+          userPayload.messages = friendar?.messages;
         }
       }
       state.push(userPayload);
@@ -34,16 +34,13 @@ export const friendSlice = createSlice({
       const friendIndex = state.findIndex(
         (f) => f?.detail?.id == action?.payload?.id
       );
-      let Updatedfriendar = state[friendIndex];
+      const Updatedfriendar = state[friendIndex];
       Updatedfriendar.messages.push(action?.payload?.chats);
       state.splice(friendIndex, 1);
       state.push(Updatedfriendar);
     },
     setFriends: (state, action: PayloadAction<iFriendSlice[]>) => {
-
-      return [...(action?.payload)]
-      
-
+      return [...action?.payload];
     },
   },
 });

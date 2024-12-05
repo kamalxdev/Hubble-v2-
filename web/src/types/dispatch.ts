@@ -12,4 +12,4 @@ export interface iDispatch
     },
     undefined,
     UnknownAction
-  > {}
+  > {example?:null}

@@ -15,7 +15,7 @@ function SearchbarTemplate() {
   const [result, setResult] = useState<iFriend[]>();
   const friends = useAppSelector((state) => state?.friends);
   useEffect(() => {
-    query &&
+    if (query) {
       searchUser(query)
         .then((data) => {
           if (!data?.success) {
@@ -29,6 +29,7 @@ function SearchbarTemplate() {
         .catch((err) => {
           console.log("Error on searching user: ", err);
         });
+    }
   }, [query]);
 
   return (

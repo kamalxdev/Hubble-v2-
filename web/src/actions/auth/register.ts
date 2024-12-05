@@ -29,7 +29,7 @@ export async function validateFormData({
 
     // returning with errors got on validating body
     if (!validateSchema.success) {
-      let errorMessages: { [key: string]: string } = {};
+      const errorMessages: { [key: string]: string } = {};
       (validateSchema?.error?.errors).map((e) => {
         errorMessages[e?.path[0]] = e?.message;
       });

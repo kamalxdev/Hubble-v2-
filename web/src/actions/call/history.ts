@@ -35,7 +35,7 @@ export default async function getCallHistory(id: string) {
 
     if (!history) return { success: false };
 
-    let filteredHistory = history?.map((h) => {
+    const filteredHistory = history?.map((h) => {
       if (h?.caller?.id == id) {
         return {
           ...h,
