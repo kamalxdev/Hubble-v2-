@@ -12,6 +12,7 @@ import { PiPictureInPictureFill } from "react-icons/pi";
 import { toaster } from "../ui/toaster";
 import { socket } from "@/utils/socket";
 import { usePeersProvider } from "@/hooks/peers";
+import { Avatar } from "../ui/avatar";
 
 function CallAreaTemplate() {
   const dispatch = useAppDispatch();
@@ -24,7 +25,6 @@ function CallAreaTemplate() {
   const friend_mic = useRef<HTMLAudioElement>(null);
 
   const [calling, setCalling] = useState(true);
-  console.log("Calling", calling);
 
   const [toggleCalls, setToggleCalls] = useState({
     video: true,
@@ -33,11 +33,12 @@ function CallAreaTemplate() {
     fullScreen: false,
   });
 
+  const isVideoCall = call?.type == "video";
   useEffect(() => {
     navigator.mediaDevices
-      .getUserMedia({ video: true, audio: true })
+      .getUserMedia({ video: isVideoCall, audio: true })
       .then(async (stream) => {
-        if (user_video?.current) {
+        if (user_video?.current && isVideoCall) {
           user_video.current.srcObject = stream;
         }
 
@@ -51,7 +52,6 @@ function CallAreaTemplate() {
           });
         }
 
-        setCalling(false);
 
         socket.send(
           JSON.stringify({
@@ -71,17 +71,23 @@ function CallAreaTemplate() {
           })
         );
       })
-      .catch((err) => {
+      .catch((err:Error) => {
         console.log("Error on getting user media", err);
 
         dispatch(callRejected());
 
         toaster.create({
-          title: "Access to media is required",
+          title: err?.message || "Access to media is required",
           type: "info",
         });
       });
   }, []);
+
+  useEffect(() => {
+    if (call?.isAnswered) {
+      setCalling(false);
+    }
+  }, [call?.isAnswered]);
 
   // toggle handlers
 
@@ -120,10 +126,10 @@ function CallAreaTemplate() {
   }
 
   function handleonPIPToggle() {
-    if (toggleCalls?.pip) {
-      if (document?.pictureInPictureElement) {
-        document?.exitPictureInPicture();
-      }
+    if (!friend_video?.current) return;
+
+    if (toggleCalls?.pip && document?.pictureInPictureElement) {
+      document?.exitPictureInPicture();
     } else {
       friend_video?.current?.requestPictureInPicture();
     }
@@ -132,10 +138,10 @@ function CallAreaTemplate() {
   }
 
   function handleonFullScreenToggle() {
-    if (toggleCalls?.fullScreen) {
-      if(document?.fullscreenElement){
-        document?.exitFullscreen()
-      }
+    if (!friend_video?.current) return;
+
+    if (toggleCalls?.fullScreen && document?.fullscreenElement) {
+      document?.exitFullscreen();
     } else {
       friend_video?.current?.requestFullscreen({ navigationUI: "hide" });
     }
@@ -194,9 +200,9 @@ function CallAreaTemplate() {
       icon: <MdCallEnd />,
     },
   ];
-
+  const onlyAudioCallButton = ["Audio", "End Call"];
   return (
-    <section className="relative w-full border border-slate-800">
+    <section className="relative w-full h-full border border-slate-800">
       <div className="w-full h-full relative">
         {call?.type == "video" ? (
           <VideoCallTemplate
@@ -206,21 +212,24 @@ function CallAreaTemplate() {
             isVideoEnabled={toggleCalls?.video}
           />
         ) : (
-          ""
+          <VoiceCallTemplate friend_mic={friend_mic} calling={calling}/>
         )}
       </div>
       <div className="absolute w-full h-full top-0 z-40 flex flex-col items-center justify-end lg:pb-16">
         <span className="bg-slate-950 justify-around flex lg:gap-3 w-full lg:w-auto p-2 lg:rounded-md">
-          {toggleButtons?.map(({ label, classname, onclick, icon }) => (
-            <IconButton
-              aria-label={label}
-              className={`transition-all ${classname}`}
-              onClick={onclick}
-              key={label}
-            >
-              {icon}
-            </IconButton>
-          ))}
+          {toggleButtons?.map(
+            ({ label, classname, onclick, icon }) =>
+              (isVideoCall || onlyAudioCallButton?.includes(label)) && (
+                <IconButton
+                  aria-label={label}
+                  className={`transition-all ${classname}`}
+                  onClick={onclick}
+                  key={label}
+                >
+                  {icon}
+                </IconButton>
+              )
+          )}
         </span>
       </div>
     </section>
@@ -278,6 +287,36 @@ const VideoCallTemplate = memo(function VideoCallTemplate({
           className={`w-full h-full ${!isVideoEnabled && "blur-sm"}`}
         ></video>
       </span>
+    </>
+  );
+});
+
+const VoiceCallTemplate = memo(function VoiceCallTemplate({
+  friend_mic,
+  calling,
+}: {
+  friend_mic: RefObject<HTMLAudioElement>;
+  calling: boolean;
+}) {
+  const call = useAppSelector((state) => state?.call);
+  return (
+    <>
+      <div className="w-full h-full flex flex-col gap-3 justify-center items-center">
+        <Avatar
+          name={call?.user?.name || "N A"}
+          loading="eager"
+          src={call?.user?.avatar || undefined}
+          className="flex justify-center items-center border-4 p-3 border-green-500 rounded-full animate-pulse w-48 h-auto"
+        />
+        <Avatar
+          name={call?.user?.name || "N A"}
+          loading="eager"
+          src={call?.user?.avatar || undefined}
+          className=" absolute flex justify-center items-center border-4 p-3 border-green-500 rounded-full animate-ping w-40 h-auto"
+        />
+        <h1 className="text-green-500 font-semibold">{calling?"Calling...":"Connected"}</h1>
+      </div>
+      <audio ref={friend_mic} className="hidden" autoPlay></audio>
     </>
   );
 });

@@ -2,7 +2,7 @@
 
 import { memo, useEffect } from "react";
 import { Avatar } from "../ui/avatar";
-import { IoVideocam } from "react-icons/io5";
+import { IoCall, IoVideocam } from "react-icons/io5";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import {
   callAnswered,
@@ -18,6 +18,8 @@ function IncomingCallTemplate() {
   const peer = usePeersProvider();
   const dispatch = useAppDispatch();
   
+  const isVideoCall= call?.type=="video"
+
   useEffect(() => {
     const audio = new Audio("/ring.wav");
     audio.loop = true;
@@ -45,7 +47,7 @@ function IncomingCallTemplate() {
   }, []);
   function handleAcceptCall() {
     navigator.mediaDevices
-      .getUserMedia({ video: true, audio: true })
+      .getUserMedia({ video: isVideoCall, audio: true })
       .then(() => {
         dispatch(callAnswered());
         peer?.startStreaming(call?.type);
@@ -61,10 +63,10 @@ function IncomingCallTemplate() {
           })
         );
       })
-      .catch((err) => {
+      .catch((err:Error) => {
         console.log("Error on getting user media", err);
         toaster.create({
-          title: "Access to media is required",
+          title: err?.message || "Access to media is required",
           type: "info",
         });
       });
@@ -87,7 +89,10 @@ function IncomingCallTemplate() {
     <div className="relative mt-5 w-full md:w-5/12 xl:w-3/12  z-40 bg-black text-white p-4 flex flex-col">
       <div className="flex items-center gap-2 ">
         <p className="opacity-20 font-bold">Incoming Call</p>{" "}
-        <IoVideocam className="text-green-600" />
+        {
+          isVideoCall ? <IoVideocam className="text-green-600" /> : <IoCall className="text-green-600" />
+        }
+        
       </div>
       <div className="flex flex-wrap gap-2">
         <span className="flex items-center w-full gap-2">
