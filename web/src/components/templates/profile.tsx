@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useState } from "react";
+import { memo, useRef, useState } from "react";
 import { Avatar } from "../ui/avatar";
 import { Button } from "@/components/ui/button";
 import { FileUploadRoot, FileUploadTrigger } from "@/components/ui/file-button";
@@ -16,7 +16,9 @@ import uploadAvatar from "@/actions/user/avatar";
 import { toaster } from "../ui/toaster";
 import { ProgressCircleRing, ProgressCircleRoot } from "../ui/progress-circle";
 import { setUser } from "@/redux/features/user";
-import updateUser from "@/actions/user/update";
+import updateUser, { validateOTP } from "@/actions/user/update";
+import { checkUnique } from "@/actions/user/user";
+import sendEmailWithOTP from "@/utils/sendOTP";
 
 function ProfileTemplate() {
   const [uploadedAvatar, setUploadedAvatar] = useState<File>();
@@ -45,8 +47,6 @@ function ProfileTemplate() {
     },
   ];
   const user = useAppSelector((state) => state.user);
-  // useEffect(()=>{console.log("avatarUploadLoading: ",avatarUploadLoading);
-  // },[avatarUploadLoading])
   async function handleChangeAvatar() {
     if (!uploadAvatar)
       return toaster.create({
@@ -153,13 +153,116 @@ const ProfileDetails = memo(function ProfileDetails({
   const [value, setValue] = useState<string>();
   const user = useAppSelector((state) => state.user);
   const dispatch = useAppDispatch();
+  const inputElement = useRef<HTMLInputElement>(null);
   async function handleSubmit() {
     if (toggleEdit) {
-      if (value == defaultValue || !value) return setToggleEdit(false);
+      if (value == defaultValue || !value) {
+        if (inputElement?.current) {
+          inputElement.current.value = defaultValue;
+        }
+        return setToggleEdit(false);
+      }
+
       setLoading(true);
-      const update = await updateUser({ [title.toLowerCase()]: value });
-      if (!update?.success) {
+
+      function cleanupOnError() {
         setLoading(false);
+        setToggleEdit(false);
+        if (inputElement?.current) {
+          inputElement.current.value = defaultValue;
+        }
+      }
+
+      if (title == "Username") {
+        const checkForUniqueUsername = await checkUnique({username:value});
+        if (!checkForUniqueUsername?.success) {
+          cleanupOnError();
+          return toaster.create({
+            title: checkForUniqueUsername?.error,
+            type: "error",
+          });
+        }
+        if (!checkForUniqueUsername?.unique) {
+          cleanupOnError();
+          return toaster.create({
+            title: "Please choose a unique username",
+            type: "error",
+          });
+        }
+      }
+
+      if (title == "Email") {
+        const checkForUniqueEmail = await checkUnique({email:value});
+        if (!checkForUniqueEmail?.success) {
+          cleanupOnError();
+          return toaster.create({
+            title: checkForUniqueEmail?.error,
+            type: "error",
+          });
+        }
+        if (!checkForUniqueEmail?.unique) {
+          cleanupOnError();
+          return toaster.create({
+            title: "Email already registered",
+            type: "error",
+          });
+        }
+
+        toaster.create({
+          title: "Sending OTP to your Email",
+          type: "info",
+        });
+
+        const emailSentToCurrentEmail = await sendEmailWithOTP(defaultValue);
+        const emailSentToNewEmail = await sendEmailWithOTP(value);
+
+        if (
+          !emailSentToCurrentEmail?.success ||
+          !emailSentToNewEmail?.success
+        ) {
+          return toaster.create({
+            title: emailSentToNewEmail?.error || emailSentToCurrentEmail?.error,
+            type: "error",
+          });
+        }
+
+        toaster.create({
+          title: "OTP sent successfully",
+          type: "success",
+        });
+
+        const currentEmailOTP = prompt(`Enter OTP sent to ${defaultValue}`);
+        if (!currentEmailOTP) {
+          return cleanupOnError();
+        }
+
+        const newEmailOTP = prompt(`Enter OTP sent to ${value}`);
+        if (!newEmailOTP) {
+          return cleanupOnError();
+        }
+
+        const validatingSentOTP = await validateOTP(
+          defaultValue,
+          value,
+          parseInt(currentEmailOTP),
+          parseInt(newEmailOTP)
+        );
+        if(!validatingSentOTP?.success){
+          return toaster.create({
+            title: validatingSentOTP?.error,
+            type: "error",
+          });
+        }
+        toaster.create({
+          title: "OTP validated Successfully",
+          type: "success",
+        });
+      }
+
+      const update = await updateUser({ [title.toLowerCase()]: value });
+
+      if (!update?.success) {
+        cleanupOnError();
         return toaster.create({
           title: update?.error,
           type: "error",
@@ -185,6 +288,7 @@ const ProfileDetails = memo(function ProfileDetails({
           type="text"
           disabled={!toggleEdit}
           defaultValue={defaultValue}
+          ref={inputElement}
           onChange={(e) => setValue(e.target.value)}
           className={`outline-0 transition w-full h-full p-2 truncate  ${
             toggleEdit
