@@ -14,7 +14,7 @@ import { iDispatch } from "@/types/dispatch";
 import { socket } from "@/utils/socket";
 import setCallAnswered from "@/actions/call/answered";
 import { iState } from "@/types/state";
-import { setUserOnline } from "@/redux/features/chat";
+import { setUserOnline, setUserTyping } from "@/redux/features/chat";
 import { iPeerContext } from "@/context/peers";
 
 export async function listenMessages(
@@ -113,29 +113,21 @@ export async function listenMessages(
       //     break;
       //
       // listening to user typing event
-      //   case "message-recieved-start-typing":
-      //     if (data?.payload?.id) {
-      //       if (openChat.typing) {
-      //         openChat.setTyping({
-      //           ...openChat?.typing,
-      //           [data?.payload?.id]: true,
-      //         });
-      //         setTimeout(() => {
-      //           openChat.setTyping({
-      //             ...openChat?.typing,
-      //             [data?.payload?.id]: false,
-      //           });
-      //         }, 1000);
-      //       } else {        console.log("message-send", JSON.stringify(data), ws.id);
-
-      //         openChat.setTyping({ [data?.payload?.id]: true });
-      //         setTimeout(() => {
-      //           openChat.setTyping({ [data?.payload?.id]: false });
-      //         }, 2500);
-      //       }
-      //     }
-      //     break;
-      //
+        case "recievedEvent-message-typing":
+          if (data?.payload?.id) {
+            if (state?.chat?.isUserTyping) {
+              setTimeout(() => {
+                dispatch(setUserTyping(false))
+              }, 1000);
+            } else {   
+              dispatch(setUserTyping(true))
+              setTimeout(() => {
+                dispatch(setUserTyping(false))
+              }, 2500);
+            }
+          }
+          break;
+      
       // call recieved from a friend
       case "call-received":
         if (data?.payload?.id && data?.payload?.type && data?.payload?.from) {

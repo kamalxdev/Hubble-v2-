@@ -64,7 +64,7 @@ function CallHistoryTemplate() {
         )
       ) : (
         <div className="flex justify-center font-semibold text-lg opacity-20 pt-10">
-          No Calls found {history?.length}
+          No Calls found
         </div>
       )}
     </div>

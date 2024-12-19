@@ -67,14 +67,14 @@ export async function message(
         break;
       //
       // sending user typing event
-      case "message-send-start-typing":
-        if (data?.payload?.to) {
+      case "sendEvent-message-typing":
+        if (data?.payload?.id) {
           sendMessageToSpecific(
             {
-              event: "message-recieved-start-typing",
+              event: "recievedEvent-message-typing",
               payload: { id: message_recieved_from?.db_id },
             },
-            data?.payload?.to
+            data?.payload?.id
           );
         }
         break;
