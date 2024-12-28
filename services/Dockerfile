@@ -1,15 +1,18 @@
-FROM node:20
 
-WORKDIR /app
+# build stage
 
+FROM node:20 as Builder
+WORKDIR /build
 COPY *.json ./
-
-RUN npm install
-
+RUN npm ci
 COPY . .
-
 RUN npx tsc
 
-EXPOSE 4002
 
-CMD ["node", "dist/index.js"]
+
+# production stage
+
+FROM node:20-alpine
+WORKDIR /app
+COPY --from=Builder /build/dist ./
+CMD ["node", "index.js"]

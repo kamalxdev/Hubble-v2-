@@ -25,7 +25,7 @@ export default function Home() {
             <IncomingCallTemplate />
           </section>
         )}
-      <section className="flex flex-nowrap bg-slate-950">
+      <section className="flex flex-nowrap bg-slate-950 w-full h-full">
         <section
           className={
             `relative border border-slate-800 lg:block ${currentChatUserID && "hidden"}`

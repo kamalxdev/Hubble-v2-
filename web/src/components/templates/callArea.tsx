@@ -202,7 +202,7 @@ function CallAreaTemplate() {
   ];
   const onlyAudioCallButton = ["Audio", "End Call"];
   return (
-    <section className="relative w-full h-full border border-slate-800">
+    <section className="relative w-full h-full border border-slate-800 z-50">
       <div className="w-full h-full relative">
         {call?.type == "video" ? (
           <VideoCallTemplate

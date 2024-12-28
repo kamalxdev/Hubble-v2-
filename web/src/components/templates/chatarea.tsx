@@ -5,14 +5,18 @@ import { Avatar } from "../ui/avatar";
 import { IconButton } from "@chakra-ui/react";
 import { BsCheck, BsCheckAll } from "react-icons/bs";
 import { IoCallOutline, IoVideocamOutline } from "react-icons/io5";
-import { HiOutlineDotsVertical } from "react-icons/hi";
+// import { HiOutlineDotsVertical } from "react-icons/hi";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { iMessages } from "@/types/chats";
 import SendMessageButton from "../ui/sendMessagebutton";
 import { socket } from "@/utils/socket";
 import { setCall } from "@/redux/features/call";
 import { IoMdArrowRoundBack } from "react-icons/io";
-import { setCurrentChatAreaUserID, setUserOnline, setUserTyping } from "@/redux/features/chat";
+import {
+  setCurrentChatAreaUserID,
+  setUserOnline,
+  setUserTyping,
+} from "@/redux/features/chat";
 
 function ChatAreaTemplate() {
   const dispatch = useAppDispatch();
@@ -49,13 +53,13 @@ function ChatAreaTemplate() {
       icon: <IoVideocamOutline />,
       onclick: () => makeCall("video"),
     },
-    {
-      name: "Options",
-      icon: <HiOutlineDotsVertical />,
-      onclick: () => {
-        alert("label");
-      },
-    },
+    // {
+    //   name: "Options",
+    //   icon: <HiOutlineDotsVertical />,
+    //   onclick: () => {
+    //     alert("label");
+    //   },
+    // },
   ];
 
   useEffect(() => {
@@ -77,8 +81,8 @@ function ChatAreaTemplate() {
     }
   }, [chats]);
 
-  useEffect(()=>{
-    if(friendID){
+  useEffect(() => {
+    if (friendID) {
       socket.send(
         JSON.stringify({
           event: "user-online-request",
@@ -86,11 +90,11 @@ function ChatAreaTemplate() {
         })
       );
     }
-    return ()=>{
+    return () => {
       dispatch(setUserOnline(false));
-      dispatch(setUserTyping(false))
-    }
-  },[friendID])
+      dispatch(setUserTyping(false));
+    };
+  }, [friendID]);
 
   if (!friendID) {
     return (
@@ -101,74 +105,74 @@ function ChatAreaTemplate() {
   }
 
   return (
-    <div className="relative w-screen lg:w-full h-dvh grid grid-rows-[auto_1fr_auto] border border-slate-800">
-      <div className="border-b border-slate-800 flex items-center justify-between px-7 py-3">
-        <span className="flex items-center gap-3">
-          <button
-            onClick={() => dispatch(setCurrentChatAreaUserID(""))}
-            className="lg:hidden"
-          >
-            <IoMdArrowRoundBack />
-          </button>
-          <Avatar
-            name={friend?.detail?.name || "N A"}
-            loading="eager"
-            src={friend?.detail?.avatar || undefined}
-          />
-          <span className="flex flex-col transition-all">
-            <h1 className="text-xl font-semibold flex items-center gap-2 transition-all">
-              {friend?.detail?.name || "N A"}
-              {isUserOnline && (
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                </span>
-              )}
-            </h1>
-            {isUserTyping && (
-              <p className="text-green-600 font-semibold text-xs transition-all">
-                typing...
-              </p>
-            )}
-          </span>
-        </span>
-        <span>
-          {userOptions?.map(({ name, icon, onclick }) => (
-            <IconButton
-              aria-label={name}
-              key={name}
-              className="hover:bg-slate-900"
-              onClick={onclick}
+    <div className="absolute top-0 z-40 lg:relative w-full h-full  border border-slate-800 bg-slate-950 overflow-hidden">
+      <div className="relative w-full h-dvh grid grid-rows-[auto_1fr_auto] overflow-hidden">
+        <div className="relative border-b border-slate-800 flex items-center justify-between px-5 lg:px-7 py-3 h-fit">
+          <span className="flex items-center gap-3">
+            <button
+              onClick={() => dispatch(setCurrentChatAreaUserID(""))}
+              className="lg:hidden hover:border border-slate-800 rounded-full p-2 text-lg"
             >
-              {icon}
-            </IconButton>
-          ))}
-        </span>
-      </div>
-      <div className="relative overflow-y-scroll overflow-hidden p-4">
-        <div className="relative">
-          <div className="absolute inline-flex flex-col w-full gap-2">
-            {chats?.length > 0 ? (
-              chats?.map(({ from, text, time, status }, index) => (
-                <Chat
-                  from={from}
-                  text={text}
-                  time={time}
-                  status={status}
-                  key={text + index}
-                />
-              ))
-            ) : (
-              <div className="flex justify-center font-semibold text-base opacity-10">
-                Start a Conversation by typing a message below.
-              </div>
-            )}
-            <div ref={divref}></div>
-          </div>
+              <IoMdArrowRoundBack />
+            </button>
+            <Avatar
+              name={friend?.detail?.name || "N A"}
+              loading="eager"
+              src={friend?.detail?.avatar || undefined}
+            />
+            <span className="flex flex-col transition-all">
+              <h1 className="text-xl font-semibold flex items-center gap-2 transition-all">
+                {friend?.detail?.name || "N A"}
+                {isUserOnline && (
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                  </span>
+                )}
+              </h1>
+              {isUserTyping && (
+                <p className="text-green-600 font-semibold text-xs transition-all">
+                  typing...
+                </p>
+              )}
+            </span>
+          </span>
+          <span>
+            {userOptions?.map(({ name, icon, onclick }) => (
+              <IconButton
+                aria-label={name}
+                key={name}
+                className="hover:bg-slate-900"
+                onClick={onclick}
+              >
+                {icon}
+              </IconButton>
+            ))}
+          </span>
         </div>
-      </div>
-      <div className="relative w-full max-h-40 overflow-hidden flex items-center px-5 py-2 gap-2">
-        <SendMessageButton />
+        <div className="relative overflow-y-scroll overflow-hidden">
+            <div className="absolute inline-flex flex-col w-full gap-2 p-4">
+              {chats?.length > 0 ? (
+                chats?.map(({ from, text, time, status }, index) => (
+                  <Chat
+                    from={from}
+                    text={text}
+                    time={time}
+                    status={status}
+                    key={text + index}
+                  />
+                ))
+              ) : (
+                <div className="flex justify-center font-semibold text-base opacity-10">
+                  Start a Conversation by typing a message below.
+                </div>
+              )}
+              <div ref={divref}></div>
+            </div>
+        </div>
+        <div className="relative w-full max-h-40 overflow-hidden flex items-center px-5 py-2 gap-2">
+          <SendMessageButton />
+        </div>
       </div>
     </div>
   );
